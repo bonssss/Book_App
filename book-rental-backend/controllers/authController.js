@@ -45,20 +45,19 @@ const login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const getAbility = (user) => {
-  const { can, cannot, build } = new AbilityBuilder(Ability);
-
-  if (user.role === 'admin') {
-    can('manage', 'all');
-  } else if (user.role === 'owner') {
-    can('manage', 'Book', { ownerId: user.id });
-    cannot('approve', 'Book');
-  } else {
-    can('read', 'Book', { status: 'available' });
-  }
-
-  return build();
-};
-
-module.exports = { register, login, getAbility };
+    const { can, cannot, build } = new AbilityBuilder(Ability);
+  
+    if (user.role === 'admin') {
+      can('manage', 'all');
+    } else if (user.role === 'owner') {
+      can('manage', 'Book', { ownerId: user.id });
+      cannot('approve', 'Book');
+    } else {
+      can('read', 'Book', { status: 'available' });
+    }
+  
+    return build();
+  };
+  
+  module.exports = { register, login, getAbility };
