@@ -6,5 +6,8 @@ const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.get('/profile', authMiddleware, (req, res) => {
+  res.json(req.user);
+});
 
 module.exports = router;

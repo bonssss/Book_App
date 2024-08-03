@@ -41,22 +41,16 @@
 // db.Sequelize = Sequelize;
 
 // module.exports = db;
+const { Sequelize, DataTypes } = require('sequelize');
 
-const { Sequelize } = require('sequelize');
-const UserModel = require('./user');
-const BookModel = require('./book');
-
-// Setup database connection
 const sequelize = new Sequelize('book_rent', 'postgres', '2112', {
   host: 'localhost',
   dialect: 'postgres',
 });
 
-const User = UserModel(sequelize, Sequelize.DataTypes);
-const Book = BookModel(sequelize, Sequelize.DataTypes);
+const User = require('./User')(sequelize, DataTypes);
 
-// Define associations
-User.hasMany(Book, { foreignKey: 'ownerId' });
-Book.belongsTo(User, { foreignKey: 'ownerId' });
-
-module.exports = { sequelize, User, Book };
+module.exports = {
+  sequelize,
+  User,
+};
