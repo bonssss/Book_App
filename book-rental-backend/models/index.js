@@ -42,15 +42,16 @@
 
 // module.exports = db;
 const { Sequelize, DataTypes } = require('sequelize');
-
 const sequelize = new Sequelize('book_rent', 'postgres', '2112', {
   host: 'localhost',
   dialect: 'postgres',
 });
 
 const User = require('./User')(sequelize, DataTypes);
+const Book = require('./Book')(sequelize, DataTypes);  // Ensure Book is imported
 
 module.exports = {
   sequelize,
   User,
+  Book,  // Add Book to exports
 };

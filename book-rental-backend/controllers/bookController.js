@@ -1,18 +1,24 @@
 const { Book, User } = require('../models');
 const { getAbility } = require('./authController');
 
-
-
+// Upload a new book
 const uploadBook = async (req, res) => {
   const { title, author, category, quantity, price } = req.body;
 
   try {
+    // Check if the book already exists
+    const existingBook = await Book.findOne({ where: { title, author } });
+    if (existingBook) {
+      return res.status(400).json({ error: 'Book already registered' });
+    }
+
+    // Create a new book
     const book = await Book.create({
       title,
       author,
       category,
       quantity,
-      price, // Add price here
+      price,
       status: 'pending',
       ownerId: req.user.id,
     });
@@ -23,8 +29,9 @@ const uploadBook = async (req, res) => {
   }
 };
 
+// Update book information
 const updateBook = async (req, res) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id, 10); // Convert id to integer
   const { title, author, category, quantity, status, price } = req.body;
 
   try {
@@ -38,15 +45,16 @@ const updateBook = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    await book.update({ title, author, category, quantity, status, price }); // Add price here
+    await book.update({ title, author, category, quantity, status, price });
     res.json(book);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// Remove a book
 const deleteBook = async (req, res) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id, 10); // Convert id to integer
 
   try {
     const book = await Book.findByPk(id);
@@ -66,9 +74,10 @@ const deleteBook = async (req, res) => {
   }
 };
 
+// List books uploaded by the owner
 const listBooks = async (req, res) => {
   try {
-    const books = await Book.findAll();
+    const books = await Book.findAll({ where: { ownerId: req.user.id } });
     res.json(books);
   } catch (error) {
     res.status(500).json({ error: error.message });

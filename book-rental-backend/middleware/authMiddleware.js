@@ -8,7 +8,6 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    // Use the secret from environment variables
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();

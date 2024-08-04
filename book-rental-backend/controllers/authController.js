@@ -61,16 +61,24 @@
 //   };
   
 //   module.exports = { register, login, getAbility };
-
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const { AbilityBuilder, Ability } = require('@casl/ability');
+
 
 // Register function
 const register = async (req, res) => {
   const { username, email, password, role } = req.body;
 
   try {
+    // Check if user with the same email already exists
+    const existingUser = await User.findOne({ where: { email } });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -103,7 +111,7 @@ const login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '3h' });
 
     res.json({ token });
   } catch (error) {
@@ -111,4 +119,19 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const getAbility = (user) => {
+  const { can, cannot, build } = new AbilityBuilder(Ability);
+
+  if (user.role === 'admin') {
+    can('manage', 'all');
+  } else if (user.role === 'owner') {
+    can('manage', 'Book', { ownerId: user.id });
+    cannot('approve', 'Book');
+  } else {
+    can('read', 'Book', { status: 'available' });
+  }
+
+  return build();
+};
+
+module.exports = { register, login, getAbility };
