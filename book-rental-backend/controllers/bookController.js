@@ -1,8 +1,10 @@
 const { Book, User } = require('../models');
 const { getAbility } = require('./authController');
 
+
+
 const uploadBook = async (req, res) => {
-  const { title, author, category, quantity } = req.body;
+  const { title, author, category, quantity, price } = req.body;
 
   try {
     const book = await Book.create({
@@ -10,8 +12,9 @@ const uploadBook = async (req, res) => {
       author,
       category,
       quantity,
+      price, // Add price here
       status: 'pending',
-      ownerId: req.user.userId,
+      ownerId: req.user.id,
     });
 
     res.status(201).json(book);
@@ -22,7 +25,7 @@ const uploadBook = async (req, res) => {
 
 const updateBook = async (req, res) => {
   const { id } = req.params;
-  const { title, author, category, quantity, status } = req.body;
+  const { title, author, category, quantity, status, price } = req.body;
 
   try {
     const book = await Book.findByPk(id);
@@ -35,7 +38,7 @@ const updateBook = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    await book.update({ title, author, category, quantity, status });
+    await book.update({ title, author, category, quantity, status, price }); // Add price here
     res.json(book);
   } catch (error) {
     res.status(500).json({ error: error.message });
