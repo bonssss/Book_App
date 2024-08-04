@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadBook, updateBook, deleteBook, listBooks } = require('../controllers/bookController');
+const { uploadBook, updateBook, deleteBook, listBooks ,getRevenue} = require('../controllers/bookController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();

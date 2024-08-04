@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  
+
   User.init({
     username: {
       type: DataTypes.STRING,
@@ -31,6 +31,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('admin', 'owner', 'renter'),
       allowNull: false,
     },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isApproved: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   }, {
     sequelize,
     modelName: 'User',
@@ -38,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
 
   return User;
 };
+
 
 // 'use strict';
 // const { Model } = require('sequelize');
