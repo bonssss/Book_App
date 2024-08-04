@@ -84,4 +84,15 @@ const listBooks = async (req, res) => {
   }
 };
 
-module.exports = { uploadBook, updateBook, deleteBook, listBooks };
+const getRevenue = async (req, res) => {
+  try {
+    const books = await Book.findAll({ where: { ownerId: req.user.id } });
+    const revenue = books.reduce((total, book) => total + (book.price || 0), 0);
+    res.json({ revenue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+module.exports = { uploadBook, updateBook, deleteBook, listBooks,getRevenue };

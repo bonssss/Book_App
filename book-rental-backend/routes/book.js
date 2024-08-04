@@ -8,5 +8,7 @@ router.post('/', authMiddleware, uploadBook);
 router.put('/:id', authMiddleware, updateBook);  // Ensure this is :id
 router.delete('/:id', authMiddleware, deleteBook);  // Ensure this is :id
 router.get('/', authMiddleware, listBooks);
+router.get('/revenue', authMiddleware, getRevenue);
+
 
 module.exports = router;
