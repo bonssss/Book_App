@@ -1,18 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import OwnerDashboard from './pages/OwnerDashboard';
 import SystemDashboard from './pages/SystemDashboard';
+import { AuthProvider } from './services/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import RegistrationForm from './pages/RegistrationForm';
 
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/owner-dashboard" component={OwnerDashboard} />
-        <Route path="/system-dashboard" component={SystemDashboard} />
-        <Route path="/" exact component={Login} />
-      </Switch>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<RegistrationForm />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/owner-dashboard" element={<ProtectedRoute element={OwnerDashboard} />} />
+          <Route path="/system-dashboard" element={<ProtectedRoute element={SystemDashboard} />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

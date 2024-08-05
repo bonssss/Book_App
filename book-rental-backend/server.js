@@ -1,18 +1,29 @@
 require('dotenv').config();
-
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // Import CORS middleware
 const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/book');
 const adminRoutes = require('./routes/admin');
 const { sequelize } = require('./models');
+const { register, login } = require('./controllers/authController');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware setup
+app.use(cors({
+  origin: 'http://localhost:3000', // Adjust this based on your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json());
 
-// Routes
+// Authentication routes
+app.post('/api/register', register);
+app.post('/api/login', login);
+
+// Routes for different functionalities
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/admin', adminRoutes);
