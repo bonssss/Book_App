@@ -94,5 +94,53 @@ const getRevenue = async (req, res) => {
   }
 };
 
+// Get dashboard stats for owner
+const getDashboardStats = async (req, res) => {
+  try {
+    // Get the total number of books uploaded by the owner
+    const totalBooks = await Book.count({ where: { ownerId: req.user.id } });
 
-module.exports = { uploadBook, updateBook, deleteBook, listBooks,getRevenue };
+    // Get the total number of books rented
+    const rentedBooksCount = await Book.count({
+      where: {
+        ownerId: req.user.id,
+        rented: true, // assuming there's a `rented` field to mark rented books
+      },
+    });
+
+    // Calculate the total revenue
+    const books = await Book.findAll({ where: { ownerId: req.user.id } });
+    const totalRevenue = books.reduce((total, book) => total + (book.price || 0), 0);
+
+    res.json({
+      totalBooks,
+      rentedBooksCount,
+      totalRevenue,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getAvailableBooks = async (req, res) => {
+  const { category, author, title } = req.query;
+  const where = {
+    status: 'available',
+    isApproved: true,
+  };
+
+  if (category) where.category = category;
+  if (author) where.author = { [Op.iLike]: `%${author}%` };
+  if (title) where.title = { [Op.iLike]: `%${title}%` };
+
+  try {
+    const books = await Book.findAll({ where });
+    res.json(books);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+module.exports = { uploadBook, updateBook, deleteBook, listBooks, getRevenue, getDashboardStats,getAvailableBooks };
+

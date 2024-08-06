@@ -3,22 +3,26 @@ import { Box, Typography, Grid, Paper, TextField, Button } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
+const API_URL = 'http://localhost:5000'; // Update if necessary
+
 const OwnerDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
   const [booksRented, setBooksRented] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Fetch statistics from the server
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/owner/dashboard-stats');
-        const { revenue, totalBooks, booksRented } = response.data;
-        setTotalRevenue(revenue);
+        const response = await axios.get(`${API_URL}/api/books/dashboard-stats`);
+        const { totalBooks, rentedBooksCount, totalRevenue } = response.data;
+        setTotalRevenue(totalRevenue);
         setTotalBooks(totalBooks);
-        setBooksRented(booksRented);
+        setBooksRented(rentedBooksCount);
       } catch (error) {
+        setError('Error fetching dashboard data');
         console.error('Error fetching dashboard data:', error);
       }
     };
@@ -42,11 +46,12 @@ const OwnerDashboard = () => {
           />
           <Button variant="contained" color="primary">Search</Button>
         </Box>
+        {error && <Typography color="error">{error}</Typography>}
         <Grid container spacing={3}>
           <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2 }}>
               <Typography variant="h6">Total Revenue</Typography>
-              <Typography variant="h5">${totalRevenue}</Typography>
+              <Typography variant="h5">${totalRevenue.toFixed(2)}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -62,7 +67,6 @@ const OwnerDashboard = () => {
             </Paper>
           </Grid>
         </Grid>
-      
       </Box>
     </Box>
   );

@@ -10,10 +10,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // Clear previous errors
+
     try {
-      await login(email, password);
+      // Ensure login function is correctly defined in AuthContext
+      await login({ email, password });
     } catch (err) {
       setError('Failed to log in');
+      console.error('Login error:', err); // Log error details for debugging
     }
   };
 

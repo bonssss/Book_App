@@ -1,36 +1,14 @@
-import React, { useState } from 'react';
-import { Box } from '@mui/material';
-import Sidebar from './Sidebar';
-import OwnerDashboard from '../pages/OwnerDashboard';
-import ManageBooks from '../pages/ManageBooks';
-import Settings from '../pages/Settings';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar'; // Adjust the import path as needed
 
-const Layout = () => {
-  const [selectedContent, setSelectedContent] = useState('dashboard');
-
-  const renderContent = () => {
-    switch (selectedContent) {
-      case 'dashboard':
-        return <OwnerDashboard />;
-      case 'manageBooks':
-        return <ManageBooks />;
-      case 'settings':
-        return <Settings />;
-      case 'logout':
-        // return <Logout />;
-      default:
-        return <OwnerDashboard />;
-    }
-  };
-
-  return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Sidebar onContentChange={setSelectedContent} />
-      <Box sx={{ flexGrow: 1, p: 3, overflowY: 'auto' }}>
-        {renderContent()}
-      </Box>
-    </Box>
-  );
-};
+const Layout = () => (
+  <div style={{ display: 'flex' }}>
+    <Sidebar />
+    <main style={{ flexGrow: 1, padding: '20px' }}>
+      <Outlet />
+    </main>
+  </div>
+);
 
 export default Layout;
