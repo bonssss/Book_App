@@ -7,6 +7,11 @@ import { AuthProvider } from './services/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegistrationForm from './pages/RegistrationForm';
 import RenterPage from './pages/Renter/RenterPage';
+import RentalForm from './components/Renter/RentalForm';
+import Cart from './components/Renter/Cart';
+import PaymentForm from './components/PaymentForm';
+import RenterDashboard from './pages/Renter/RenterDashboard';
+
 
 function App() {
   return (
@@ -19,6 +24,12 @@ function App() {
           <Route path="/owner-dashboard/*" element={<ProtectedRoute element={OwnerDashboard} />} />
           <Route path="/system-dashboard" element={<ProtectedRoute element={SystemDashboard} />} />
           <Route path="/renter" element={<ProtectedRoute element={RenterPage} />} />
+          <Route path="/rental-form" element={<RentalForm />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/payment" element={<PaymentForm />} />
+        <Route path="/renter-dashboard" element={<RenterDashboard />} />
+        
+
         </Routes>
       </AuthProvider>
     </Router>

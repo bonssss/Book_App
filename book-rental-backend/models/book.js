@@ -57,7 +57,8 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.STRING,
     price: DataTypes.FLOAT,
     ownerId: DataTypes.INTEGER,
-    imageUrl: DataTypes.STRING // Added field for image URL
+    imageUrl: DataTypes.STRING ,// Added field for image URL
+    rented: DataTypes.BOOLEAN 
   }, {
     sequelize,
     modelName: 'Book',

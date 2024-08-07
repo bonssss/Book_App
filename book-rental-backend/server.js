@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const bookRoutes = require('./routes/book');
 const adminRoutes = require('./routes/admin');
 const { sequelize } = require('./models');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,7 +20,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Authentication routes
+app.use('/api/payments', paymentRoutes);// Authentication routes
 app.use('/api/auth', authRoutes); // Use authRoutes for /api/auth routes
 
 // Routes for different functionalities

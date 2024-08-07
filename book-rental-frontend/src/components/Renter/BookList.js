@@ -1,47 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Card, CardMedia, CardContent, Grid, Collapse, IconButton, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Card, CardMedia, CardContent, Grid, Collapse, IconButton, Divider, Button, Checkbox } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useNavigate } from 'react-router-dom';
 
-const BookList = () => {
-  const [books, setBooks] = useState([]);
+const BookList = ({ books }) => {
   const [expandedBookId, setExpandedBookId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await fetch('/api/books?status=available'); // Adjust URL and query parameters as needed
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setBooks(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBooks();
-  }, []);
+  const [selectedBooks, setSelectedBooks] = useState([]);
+  const navigate = useNavigate();
 
   const handleExpandClick = (id) => {
     setExpandedBookId(expandedBookId === id ? null : id);
   };
 
-  if (loading) return <Typography variant="h6" textAlign="center" sx={{ padding: 2 }}>Loading...</Typography>;
-  if (error) return <Typography variant="h6" color="error" textAlign="center" sx={{ padding: 2 }}>Error: {error}</Typography>;
+  const handleCheckboxChange = (book) => {
+    setSelectedBooks(prevState => {
+      if (prevState.some(b => b.id === book.id)) {
+        return prevState.filter(b => b.id !== book.id);
+      } else {
+        return [...prevState, book];
+      }
+    });
+  };
+
+  const handleRentSingleClick = (book) => {
+    navigate('/rental-form', { state: { books: [book], single: true } });
+  };
+
+  const handleRentMultipleClick = () => {
+    if (selectedBooks.length === 0) {
+      alert('Please select books to add to cart.');
+    } else {
+      navigate('/rental-form', { state: { books: selectedBooks, single: false } });
+    }
+  };
+
+  if (!books || books.length === 0) return <Typography variant="h6" textAlign="center">No books are currently available for rent. Please check back later.</Typography>;
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Typography variant="h4" sx={{ marginBottom: 4, textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
-        Available Books
-      </Typography>
-      <Grid container spacing={4}>
+      <Grid container spacing={4} justifyContent="center">
         {books.map((book) => (
-          <Grid item xs={12} sm={6} md={4} key={book.id}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={book.id} sx={{ display: 'flex', justifyContent: 'center' }}>
             <Card
               sx={{
                 display: 'flex',
@@ -53,14 +52,23 @@ const BookList = () => {
                   transform: 'scale(1.05)',
                   boxShadow: 6,
                 },
+                width: '100%',
+                maxWidth: 345,
+                margin: 'auto',
               }}
             >
               <CardMedia
                 component="img"
                 height="200"
-                image={book.imageUrl || '/default-book-image.png'}
+                image={book.imageUrl || '/default.jpg'}
                 alt={book.title}
-                sx={{ objectFit: 'cover', borderTopLeftRadius: 2, borderTopRightRadius: 2, cursor: 'pointer' }}
+                sx={{ 
+                  objectFit: 'cover', 
+                  borderTopLeftRadius: 2, 
+                  borderTopRightRadius: 2, 
+                  cursor: 'pointer',
+                  width: '100%'
+                }}
                 onClick={() => handleExpandClick(book.id)}
               />
               <CardContent>
@@ -80,19 +88,35 @@ const BookList = () => {
                   <Typography variant="body1" sx={{ fontSize: '0.875rem' }}>{book.description || 'No description available.'}</Typography>
                 </Box>
               </Collapse>
-              <Box sx={{ textAlign: 'center', padding: 1 }}>
-                <IconButton
-                  onClick={() => handleExpandClick(book.id)}
-                  aria-expanded={expandedBookId === book.id}
-                  sx={{ color: 'primary.main' }}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 1 }}>
+                <Checkbox
+                  checked={selectedBooks.some(b => b.id === book.id)}
+                  onChange={() => handleCheckboxChange(book)}
+                  aria-label={`Select ${book.title}`}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleRentSingleClick(book)}
+                  sx={{ mr: 1 }}
                 >
-                  <ExpandMoreIcon />
-                </IconButton>
+                  Rent Now
+                </Button>
               </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
+      <Box sx={{ textAlign: 'center', mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleRentMultipleClick}
+          disabled={selectedBooks.length === 0}
+        >
+          Add to Cart
+        </Button>
+      </Box>
     </Box>
   );
 };

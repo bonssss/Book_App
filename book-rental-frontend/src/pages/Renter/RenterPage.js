@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import axios from 'axios';
 import Navbar from '../../components/Renter/Navbar';
 import Footer from '../../components/Renter/Footer';
@@ -23,7 +23,6 @@ const RenterPage = () => {
         setLoading(false);
       }
     };
-    
 
     fetchBooks();
   }, []);
@@ -38,13 +37,7 @@ const RenterPage = () => {
       <Typography variant="h4" gutterBottom>
         Available Books for Rent
       </Typography>
-      <Grid container spacing={3}>
-        {books.map(book => (
-          <Grid item key={book.id} xs={12} sm={6} md={4}>
-            <BookList book={book} /> {/* Ensure BookList handles the book prop */}
-          </Grid>
-        ))}
-      </Grid>
+      <BookList books={books} /> {/* Pass books data as a prop */}
       <Footer />
     </Box>
   );

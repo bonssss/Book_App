@@ -149,12 +149,12 @@ const getDashboardStats = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const getAvailableBooks = async (req, res) => {
   const { category, author, title, sort, order } = req.query;
+
   const where = {
-    status: 'available',  // Books that are available for rent
-    isApproved: true,     // Only show books that are approved
+    status: 'available', // Only approved books
+    rented: false // Only books that are not currently rented
   };
 
   if (category) where.category = category;
@@ -165,8 +165,14 @@ const getAvailableBooks = async (req, res) => {
     const books = await Book.findAll({
       where,
       order: [[sort || 'createdAt', order || 'DESC']],
+      attributes: ['id', 'title', 'author', 'category', 'price', 'imageUrl'] // Include imageUrl here
     });
-    res.json(books);
+
+    if (books.length === 0) {
+      res.json({ message: 'No books are currently available for rent. Please check back later.' });
+    } else {
+      res.json(books);
+    }
   } catch (error) {
     console.error('Error fetching books:', error);
     res.status(500).json({ error: 'Failed to fetch books' });
