@@ -1,9 +1,25 @@
 const { Book, User } = require('../models');
 const { getAbility } = require('./authController');
+const { Op } = require('sequelize');
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // Upload a new book
 const uploadBook = async (req, res) => {
   const { title, author, category, quantity, price } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     // Check if the book already exists
@@ -21,6 +37,7 @@ const uploadBook = async (req, res) => {
       price,
       status: 'pending',
       ownerId: req.user.id,
+      imageUrl
     });
 
     res.status(201).json(book);
@@ -31,8 +48,9 @@ const uploadBook = async (req, res) => {
 
 // Update book information
 const updateBook = async (req, res) => {
-  const id = parseInt(req.params.id, 10); // Convert id to integer
+  const id = parseInt(req.params.id, 10);
   const { title, author, category, quantity, status, price } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const book = await Book.findByPk(id);
@@ -45,7 +63,7 @@ const updateBook = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    await book.update({ title, author, category, quantity, status, price });
+    await book.update({ title, author, category, quantity, status, price, imageUrl });
     res.json(book);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -54,7 +72,7 @@ const updateBook = async (req, res) => {
 
 // Remove a book
 const deleteBook = async (req, res) => {
-  const id = parseInt(req.params.id, 10); // Convert id to integer
+  const id = parseInt(req.params.id, 10);
 
   try {
     const book = await Book.findByPk(id);
@@ -84,6 +102,7 @@ const listBooks = async (req, res) => {
   }
 };
 
+// Get revenue for the owner
 const getRevenue = async (req, res) => {
   try {
     const books = await Book.findAll({ where: { ownerId: req.user.id } });
@@ -122,8 +141,9 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+// Get available books with server-side filtering
 const getAvailableBooks = async (req, res) => {
-  const { category, author, title } = req.query;
+  const { category, author, title, sort, order } = req.query;
   const where = {
     status: 'available',
     isApproved: true,
@@ -134,13 +154,22 @@ const getAvailableBooks = async (req, res) => {
   if (title) where.title = { [Op.iLike]: `%${title}%` };
 
   try {
-    const books = await Book.findAll({ where });
+    const books = await Book.findAll({
+      where,
+      order: [[sort || 'createdAt', order || 'DESC']],
+    });
     res.json(books);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
-module.exports = { uploadBook, updateBook, deleteBook, listBooks, getRevenue, getDashboardStats,getAvailableBooks };
-
+module.exports = { 
+  uploadBook, 
+  updateBook, 
+  deleteBook, 
+  listBooks, 
+  getRevenue, 
+  getDashboardStats, 
+  getAvailableBooks 
+};

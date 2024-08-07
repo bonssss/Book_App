@@ -6,9 +6,7 @@ import SystemDashboard from './pages/SystemDashboard';
 import { AuthProvider } from './services/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegistrationForm from './pages/RegistrationForm';
-import ManageBooks from './pages/ManageBooks'
-import Settings from './pages/Settings'; 
-import RenterPage from './pages/Renter/RenterPage'
+import RenterPage from './pages/Renter/RenterPage';
 
 function App() {
   return (
@@ -18,13 +16,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/" element={<Login />} />
-          <Route path="/owner-dashboard" element={<ProtectedRoute element={OwnerDashboard} />} />
+          <Route path="/owner-dashboard/*" element={<ProtectedRoute element={OwnerDashboard} />} />
           <Route path="/system-dashboard" element={<ProtectedRoute element={SystemDashboard} />} />
-          <Route path="/manage-books" element={<ProtectedRoute element={ManageBooks} />} />
-          <Route path="/settings" element={<ProtectedRoute element={Settings} />} />
           <Route path="/renter" element={<ProtectedRoute element={RenterPage} />} />
-
-
         </Routes>
       </AuthProvider>
     </Router>

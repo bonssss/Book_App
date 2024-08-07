@@ -40,7 +40,6 @@
 
 //   return Book;
 // };
-
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
@@ -57,10 +56,12 @@ module.exports = (sequelize, DataTypes) => {
     quantity: DataTypes.INTEGER,
     status: DataTypes.STRING,
     price: DataTypes.FLOAT,
-    ownerId: DataTypes.INTEGER
+    ownerId: DataTypes.INTEGER,
+    imageUrl: DataTypes.STRING // Added field for image URL
   }, {
     sequelize,
     modelName: 'Book',
   });
   return Book;
 };
+

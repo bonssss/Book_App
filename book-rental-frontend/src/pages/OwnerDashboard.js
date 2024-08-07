@@ -1,40 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Paper, TextField, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Grid, Paper, TextField, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Routes, Route } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000'; // Update if necessary
+import CategoryPieChart from '../components/owner/CategoryPieChart';
+import LiveBookStatus from '../components/owner/LiveBookStatus';
+import EarningsSummary from '../components/owner/EarningsSummary';
+import Settings from '../pages/Settings';
+import ManageBooks from '../pages/ManageBooks';
 
 const OwnerDashboard = () => {
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalBooks, setTotalBooks] = useState(0);
-  const [booksRented, setBooksRented] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    // Fetch statistics from the server
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/books/dashboard-stats`);
-        const { totalBooks, rentedBooksCount, totalRevenue } = response.data;
-        setTotalRevenue(totalRevenue);
-        setTotalBooks(totalBooks);
-        setBooksRented(rentedBooksCount);
-      } catch (error) {
-        setError('Error fetching dashboard data');
-        console.error('Error fetching dashboard data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <Sidebar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Typography variant="h4" gutterBottom>Owner Dashboard</Typography>
+      {sidebarOpen && <Sidebar />}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          ml: sidebarOpen ? '250px' : '0',
+          transition: 'margin-left 0.3s',
+          overflowY: 'auto',
+          height: '100vh',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <IconButton onClick={handleToggleSidebar} sx={{ mr: 2 }}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h4">Owner Dashboard</Typography>
+        </Box>
+        
         <Box mt={3}>
           <TextField
             label="Search Books"
@@ -44,29 +47,31 @@ const OwnerDashboard = () => {
             fullWidth
             sx={{ mb: 2 }}
           />
-          <Button variant="contained" color="primary">Search</Button>
         </Box>
-        {error && <Typography color="error">{error}</Typography>}
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6">Total Revenue</Typography>
-              <Typography variant="h5">${totalRevenue.toFixed(2)}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6">Total Books</Typography>
-              <Typography variant="h5">{totalBooks}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6">Books Rented</Typography>
-              <Typography variant="h5">{booksRented}</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
+
+        <Routes>
+          <Route path="/" element={
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <Paper sx={{ p: 2 }}>
+                  <CategoryPieChart />
+                </Paper>
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <Paper sx={{ p: 2, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom>Live Book Status</Typography>
+                  <LiveBookStatus />
+                </Paper>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>Earnings Summary</Typography>
+                  <EarningsSummary />
+                </Paper>
+              </Grid>
+            </Grid>
+          } />
+          <Route path="settings" element={<Settings />} />
+          <Route path="manage-books" element={<ManageBooks />} />
+        </Routes>
       </Box>
     </Box>
   );

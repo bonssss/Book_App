@@ -14,9 +14,11 @@
     "assert": "^2.1.0",
     "axios": "^1.7.3",
     "browserify-zlib": "^0.2.0",
+    "chart.js": "^4.4.3",
     "https-browserify": "^1.0.0",
     "material-react-table": "^2.13.1",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
     "react-scripts": "5.0.1",
@@ -32,7 +34,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-    
   },
   "eslintConfig": {
     "extends": [

@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Box, List, ListItem, ListItemText, Divider, Typography, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, List, ListItem, ListItemText, Divider, Typography } from '@mui/material';
 import { useAuth } from '../services/AuthContext';
 
-const Sidebar = ({ open, onToggle }) => {
+const Sidebar = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -17,49 +16,36 @@ const Sidebar = ({ open, onToggle }) => {
   return (
     <Box
       sx={{
-        width: open ? 250 : 0,
+        width: 250,
         height: '100vh',
+        position: 'fixed',
         backgroundColor: '#1e1e1e',
         color: 'white',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        transition: 'width 0.3s',
-        overflow: 'hidden',
       }}
     >
       <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
-          {open && <Typography variant="h6">Book Rent</Typography>}
-          <IconButton
-            sx={{ marginLeft: 'auto' }}
-            onClick={onToggle}
-          >
-            <MenuIcon sx={{ color: 'white' }} />
-          </IconButton>
-        </Box>
-        {open && (
-          <>
-            <List>
-              <ListItem button component={Link} to="/owner-dashboard">
-                <ListItemText primary="Dashboard" />
-              </ListItem>
-              <ListItem button component={Link} to="/upload-book">
-                <ListItemText primary="Upload Book" />
-              </ListItem>
-              <ListItem button component={Link} to="/settings">
-                <ListItemText primary="Settings" />
-              </ListItem>
-            </List>
-            <Divider />
-            <List>
-              <ListItem button onClick={handleLogout}>
-                <ListItemText primary="Logout" />
-              </ListItem>
-            </List>
-          </>
-        )}
+        <Typography variant="h6" sx={{ padding: 2 }}>Book Rent</Typography>
+        <List>
+          <ListItem button component={Link} to="/owner-dashboard">
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button component={Link} to="/owner-dashboard/manage-books">
+            <ListItemText primary="Upload Book" />
+          </ListItem>
+          <ListItem button component={Link} to="/owner-dashboard/settings">
+            <ListItemText primary="Settings" />
+          </ListItem>
+        </List>
       </Box>
+      <Divider />
+      <List>
+        <ListItem button onClick={handleLogout}>
+          <ListItemText primary="Logout" />
+        </ListItem>
+      </List>
     </Box>
   );
 };
