@@ -18,7 +18,15 @@ const upload = multer({ storage: storage });
 
 // Upload a new book
 const uploadBook = async (req, res) => {
-  const { title, author, category, quantity, price } = req.body;
+  console.log('Received fields:', req.body);
+  console.log('Received file:', req.file);
+
+  // Trim extra spaces from field names
+  const body = Object.fromEntries(
+    Object.entries(req.body).map(([key, value]) => [key.trim(), value])
+  );
+
+  const { title, author, category, quantity, price } = body;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -45,6 +53,7 @@ const uploadBook = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Update book information
 const updateBook = async (req, res) => {
@@ -141,12 +150,11 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-// Get available books with server-side filtering
 const getAvailableBooks = async (req, res) => {
   const { category, author, title, sort, order } = req.query;
   const where = {
-    status: 'available',
-    isApproved: true,
+    status: 'available',  // Books that are available for rent
+    isApproved: true,     // Only show books that are approved
   };
 
   if (category) where.category = category;
@@ -160,7 +168,8 @@ const getAvailableBooks = async (req, res) => {
     });
     res.json(books);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching books:', error);
+    res.status(500).json({ error: 'Failed to fetch books' });
   }
 };
 
