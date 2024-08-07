@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadBook, updateBook, deleteBook, listBooks, getRevenue, getDashboardStats, getAvailableBooks } = require('../controllers/bookController');
+const { uploadBook, updateBook, deleteBook, listBooks, getRevenue, getDashboardStats, getAvailableBooks,getBooksByOwner } = require('../controllers/bookController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Configure multer for file uploads
@@ -26,5 +26,5 @@ router.get('/', authMiddleware, listBooks);
 router.get('/revenue', authMiddleware, getRevenue);
 router.get('/dashboard-stats', authMiddleware, getDashboardStats);
 router.get('/available', getAvailableBooks);
-
+router.get('/', authMiddleware, getBooksByOwner);
 module.exports = router;

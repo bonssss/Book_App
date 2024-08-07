@@ -8,6 +8,8 @@ const bookRoutes = require('./routes/book');
 const adminRoutes = require('./routes/admin');
 const { sequelize } = require('./models');
 const paymentRoutes = require('./routes/paymentRoutes');
+const categories = require('./routes/categories')
+const earningsRoutes= require('./routes/earnings');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +28,8 @@ app.use('/api/auth', authRoutes); // Use authRoutes for /api/auth routes
 // Routes for different functionalities
 app.use('/api/books', bookRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/', categories);
+app.use('/api/earnings', earningsRoutes);
 
 // Start server and sync database
 const startServer = async () => {

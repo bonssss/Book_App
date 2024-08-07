@@ -178,6 +178,28 @@ const getAvailableBooks = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch books' });
   }
 };
+const getBooksByOwner = async (req, res) => {
+  const { ownerId } = req.query; // Get ownerId from query parameters
+
+  if (!ownerId) {
+    return res.status(400).json({ error: 'Owner ID is required' });
+  }
+
+  try {
+    const books = await Book.findAll({
+      where: {
+        ownerId: ownerId, // Filter by owner ID
+      },
+    });
+
+    res.json(books);
+  } catch (error) {
+    console.error('Error fetching book data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
 
 module.exports = { 
   uploadBook, 
@@ -186,5 +208,5 @@ module.exports = {
   listBooks, 
   getRevenue, 
   getDashboardStats, 
-  getAvailableBooks 
+  getAvailableBooks ,getBooksByOwner
 };

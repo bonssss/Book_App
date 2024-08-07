@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Ensure axios is installed
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
     try {
       // Call backend login endpoint
       const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
-
       const userData = response.data;
       setUser(userData.user); // Set user data in context
       localStorage.setItem('token', userData.token);

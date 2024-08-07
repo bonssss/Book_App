@@ -29,6 +29,7 @@ const OwnerDashboard = () => {
           transition: 'margin-left 0.3s',
           overflowY: 'auto',
           height: '100vh',
+          width: '100%',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -38,26 +39,26 @@ const OwnerDashboard = () => {
           <Typography variant="h4">Owner Dashboard</Typography>
         </Box>
         
-        <Box mt={3}>
+        <Box mt={3} sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <TextField
             label="Search Books"
             variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ maxWidth: '600px' }}
           />
         </Box>
 
         <Routes>
           <Route path="/" element={
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} md={4}>
                 <Paper sx={{ p: 2 }}>
                   <CategoryPieChart />
                 </Paper>
               </Grid>
-              <Grid item xs={12} sm={8}>
+              <Grid item xs={12} md={8}>
                 <Paper sx={{ p: 2, mb: 3 }}>
                   <Typography variant="h6" gutterBottom>Live Book Status</Typography>
                   <LiveBookStatus />
