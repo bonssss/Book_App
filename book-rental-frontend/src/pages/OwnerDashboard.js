@@ -56,16 +56,7 @@ const OwnerDashboard = () => {
           <Typography variant="h4">Owner Dashboard</Typography>
         </Box>
         
-        <Box mt={3} sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-          <TextField
-            label="Search Books"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
-            sx={{ maxWidth: '600px' }}
-          />
-        </Box>
+       
 
         <Routes>
           <Route path="/" element={

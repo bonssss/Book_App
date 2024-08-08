@@ -33,6 +33,24 @@ const getCategoryCounts = async (req, res) => {
   }
 };
 
+const getCategoryStats = async (req, res) => {
+  try {
+    const categories = await Book.findAll({
+      attributes: [
+        'category',
+        [sequelize.fn('COUNT', sequelize.col('category')), 'count']
+      ],
+      group: ['category'],
+      raw: true
+    });
+
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
-  getCategoryCounts,
+  getCategoryCounts,getCategoryStats
 };

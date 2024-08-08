@@ -33,6 +33,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api', categories);
 app.use('/api/earnings', earningsRoutes);
 app.use('/api/income', incomeRoutes);
+app.use('/api', bookRoutes);
+
 
 // Start server and sync database
 const startServer = async () => {

@@ -11,6 +11,7 @@ import RentalForm from './components/Renter/RentalForm';
 import Cart from './components/Renter/Cart';
 import PaymentForm from './components/PaymentForm';
 import RenterDashboard from './pages/Renter/RenterDashboard';
+import AllBooks from './components/admin/AllBooks';
 
 
 function App() {
@@ -28,7 +29,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<PaymentForm />} />
         <Route path="/renter-dashboard" element={<RenterDashboard />} />
-        
+        <Route path="/all-books" element={<AllBooks />} />
+
 
         </Routes>
       </AuthProvider>

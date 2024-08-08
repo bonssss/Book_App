@@ -3,6 +3,7 @@ const { getAbility } = require('./authController');
 const { Op } = require('sequelize');
 const multer = require('multer');
 const path = require('path');
+const {  sequelize } = require('../models'); 
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -246,6 +247,28 @@ const returnBook = async (bookId) => {
 };
 
 
+const getAllBooksForAdmin = async (req, res) => {
+  try {
+    const books = await Book.findAll({
+      include: [{
+        model: User,
+        as: 'owner', // Use the alias defined in the Book model
+        attributes: ['username',], // Include necessary user attributes
+      }],
+      attributes: ['id', 'title', 'author', 'category', 'quantity', 'rentedQuantity', 'status', 'price', 'imageUrl', 'rented'],
+    });
+
+    if (!books.length) {
+      return res.status(404).json({ message: 'No books found' });
+    }
+
+    res.json(books);
+  } catch (error) {
+    console.error('Error fetching books for admin:', error);
+    res.status(500).json({ error: 'Failed to fetch books' });
+  }
+};
+
 module.exports = { 
   returnBook,
   uploadBook, 
@@ -256,5 +279,5 @@ module.exports = {
   getDashboardStats, 
   getAvailableBooks,
   getBooksByOwner,
-  rentBook
+  rentBook,getAllBooksForAdmin
 };

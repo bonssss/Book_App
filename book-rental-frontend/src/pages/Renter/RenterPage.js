@@ -44,9 +44,9 @@ const RenterPage = () => {
     <Box sx={{ p: 3 }}>
       <Navbar />
       <LandingPage />
-      <Typography variant="h4" gutterBottom>
-        Available Books for Rent
-      </Typography>
+      <Typography variant="h4" gutterBottom sx={{ mt: 4, mb: 2, textAlign: 'center', fontWeight: 'bold', color: '#333' }}>
+          Available Books for Rent
+        </Typography>
       <BookList books={books} />
       <Footer />
     </Box>
