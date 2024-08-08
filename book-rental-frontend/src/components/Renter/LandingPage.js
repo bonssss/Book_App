@@ -12,8 +12,9 @@ const LandingPage = () => {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#CADCFC',
         padding: { xs: '20px', sm: '40px' },
+        overflow: 'hidden', // Ensures no overflow
       }}
     >
       <Container
@@ -31,13 +32,14 @@ const LandingPage = () => {
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
+            alignItems: { xs: 'center', md: 'flex-start' }, // Align text properly on larger screens
             paddingRight: { md: '20px' },
           }}
         >
           <Typography
             variant="h3"
             sx={{
+              color: '#00246B',
               marginBottom: '20px',
               fontWeight: 'bold',
               fontSize: { xs: '1.8rem', sm: '2.5rem' },
@@ -54,16 +56,14 @@ const LandingPage = () => {
           <Box>
             <Button
               variant="contained"
-              color="primary"
               size="large"
               onClick={() => navigate('/login')}
-              sx={{ marginRight: '10px', fontSize: { xs: '0.875rem', sm: '1rem' } }}
+              sx={{ marginRight: '10px', fontSize: { xs: '0.875rem', sm: '1rem' }, color: '#CADCFC' }}
             >
               Get Started
             </Button>
             <Button
               variant="outlined"
-              color="primary"
               size="large"
               onClick={() => navigate('/register')}
               sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}
@@ -93,7 +93,7 @@ const LandingPage = () => {
         </Box>
       </Container>
 
-      <Grid container spacing={4} sx={{ marginTop: '40px' }}>
+      <Grid container spacing={4} sx={{ marginTop: '40px', paddingX: { xs: '20px', md: '0' } }}>
         <Grid item xs={12} sm={6} md={4}>
           <Box
             sx={{

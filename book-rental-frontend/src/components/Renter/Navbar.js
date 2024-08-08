@@ -33,19 +33,19 @@ const Navbar = () => {
         {user ? (
           <>
             <ListItem button onClick={() => navigate('/renter-dashboard')}>
-              <ListItemText primary="Dashboard" />
+              <ListItemText primary="Dashboard" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} />
             </ListItem>
             <ListItem button onClick={logout}>
-              <ListItemText primary="Logout" />
+              <ListItemText primary="Logout" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} />
             </ListItem>
           </>
         ) : (
           <>
             <ListItem button onClick={() => navigate('/login')}>
-              <ListItemText primary="Login" />
+              <ListItemText primary="Login" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} />
             </ListItem>
             <ListItem button onClick={() => navigate('/register')}>
-              <ListItemText primary="Register" />
+              <ListItemText primary="Register" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} />
             </ListItem>
           </>
         )}
@@ -55,9 +55,9 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="static" sx={{ marginBottom: 2 }}>
+      <AppBar position="fixed" sx={{ top: 0, left: 0, width: '100%', zIndex: theme.zIndex.drawer + 1, backgroundColor: '#00246B' }}>
         <Toolbar sx={{ flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h5" component="div" sx={{ flexGrow: 1, fontWeight: 'bold', color: '#CADCFC', cursor: 'pointer' }} onClick={() => navigate('/')}>
             Book Rental
           </Typography>
           {isMobile ? (
@@ -79,50 +79,6 @@ const Navbar = () => {
                 </Box>
                 {drawerItems}
               </Drawer>
-              <Box sx={{ display: 'none', sm: 'flex', alignItems: 'center' }}>
-                <Box
-                  component="form"
-                  onSubmit={handleSearchSubmit}
-                  sx={{ display: 'flex', alignItems: 'center', marginRight: 2 }}
-                >
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    placeholder="Search books"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    sx={{ marginRight: 2 }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton type="submit">
-                            <SearchIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-                {user ? (
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button color="inherit" onClick={() => navigate('/renter-dashboard')}>
-                      Dashboard
-                    </Button>
-                    <Button color="inherit" onClick={logout}>
-                      Logout
-                    </Button>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button color="inherit" onClick={() => navigate('/login')}>
-                      Login
-                    </Button>
-                    <Button color="inherit" onClick={() => navigate('/register')}>
-                      Register
-                    </Button>
-                  </Box>
-                )}
-              </Box>
             </>
           ) : (
             <>
@@ -137,12 +93,27 @@ const Navbar = () => {
                   placeholder="Search books"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  sx={{ marginRight: 2 }}
+                  sx={{
+                    marginRight: 2,
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '5px',
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#CADCFC',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#3f51b5',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#00246B',
+                      },
+                    },
+                  }}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton type="submit">
-                          <SearchIcon />
+                          <SearchIcon sx={{ color: '#00246B' }} />
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -152,19 +123,51 @@ const Navbar = () => {
               <Box sx={{ display: 'flex', gap: 2 }}>
                 {user ? (
                   <>
-                    <Button color="inherit" onClick={() => navigate('/renter-dashboard')}>
+                    <Button
+                      color="inherit"
+                      onClick={() => navigate('/renter-dashboard')}
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        '&:hover': { color: '#3f51b5' },
+                      }}
+                    >
                       Dashboard
                     </Button>
-                    <Button color="inherit" onClick={logout}>
+                    <Button
+                      color="inherit"
+                      onClick={logout}
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        '&:hover': { color: '#3f51b5' },
+                      }}
+                    >
                       Logout
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button color="inherit" onClick={() => navigate('/login')}>
+                    <Button
+                      color="inherit"
+                      onClick={() => navigate('/login')}
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        '&:hover': { color: '#3f51b5' },
+                      }}
+                    >
                       Login
                     </Button>
-                    <Button color="inherit" onClick={() => navigate('/register')}>
+                    <Button
+                      color="inherit"
+                      onClick={() => navigate('/register')}
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        '&:hover': { color: '#3f51b5' },
+                      }}
+                    >
                       Register
                     </Button>
                   </>
@@ -174,6 +177,9 @@ const Navbar = () => {
           )}
         </Toolbar>
       </AppBar>
+      <Box sx={{ marginTop: '64px' }}>
+        {/* Main content goes here */}
+      </Box>
     </>
   );
 };

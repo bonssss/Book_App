@@ -21,12 +21,7 @@ const uploadBook = async (req, res) => {
   console.log('Received fields:', req.body);
   console.log('Received file:', req.file);
 
-  // Trim extra spaces from field names
-  const body = Object.fromEntries(
-    Object.entries(req.body).map(([key, value]) => [key.trim(), value])
-  );
-
-  const { title, author, category, quantity, price } = body;
+  const { title, author, category, quantity, price, rented = false } = req.body;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -45,7 +40,8 @@ const uploadBook = async (req, res) => {
       price,
       status: 'pending',
       ownerId: req.user.id,
-      imageUrl
+      imageUrl,
+      rented
     });
 
     res.status(201).json(book);
@@ -54,12 +50,11 @@ const uploadBook = async (req, res) => {
   }
 };
 
-
 // Update book information
 const updateBook = async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const { title, author, category, quantity, status, price } = req.body;
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const { title, author, category, quantity, status, price, rented } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
 
   try {
     const book = await Book.findByPk(id);
@@ -72,7 +67,21 @@ const updateBook = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    await book.update({ title, author, category, quantity, status, price, imageUrl });
+    const updatedData = {
+      title,
+      author,
+      category,
+      quantity,
+      status,
+      price,
+      rented
+    };
+
+    if (imageUrl !== undefined) {
+      updatedData.imageUrl = imageUrl;
+    }
+
+    await book.update(updatedData);
     res.json(book);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -125,18 +134,8 @@ const getRevenue = async (req, res) => {
 // Get dashboard stats for owner
 const getDashboardStats = async (req, res) => {
   try {
-    // Get the total number of books uploaded by the owner
     const totalBooks = await Book.count({ where: { ownerId: req.user.id } });
-
-    // Get the total number of books rented
-    const rentedBooksCount = await Book.count({
-      where: {
-        ownerId: req.user.id,
-        rented: true, // assuming there's a `rented` field to mark rented books
-      },
-    });
-
-    // Calculate the total revenue
+    const rentedBooksCount = await Book.count({ where: { ownerId: req.user.id, rented: true } });
     const books = await Book.findAll({ where: { ownerId: req.user.id } });
     const totalRevenue = books.reduce((total, book) => total + (book.price || 0), 0);
 
@@ -149,12 +148,14 @@ const getDashboardStats = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get available books
 const getAvailableBooks = async (req, res) => {
   const { category, author, title, sort, order } = req.query;
 
   const where = {
-    status: 'available', // Only approved books
-    rented: false // Only books that are not currently rented
+    status: 'available',
+    rented: false
   };
 
   if (category) where.category = category;
@@ -165,7 +166,7 @@ const getAvailableBooks = async (req, res) => {
     const books = await Book.findAll({
       where,
       order: [[sort || 'createdAt', order || 'DESC']],
-      attributes: ['id', 'title', 'author', 'category', 'price', 'imageUrl'] // Include imageUrl here
+      attributes: ['id', 'title', 'author', 'category', 'price', 'imageUrl']
     });
 
     if (books.length === 0) {
@@ -174,39 +175,86 @@ const getAvailableBooks = async (req, res) => {
       res.json(books);
     }
   } catch (error) {
-    console.error('Error fetching books:', error);
     res.status(500).json({ error: 'Failed to fetch books' });
   }
 };
+
+// Get books by owner
 const getBooksByOwner = async (req, res) => {
-  const { ownerId } = req.query; // Get ownerId from query parameters
+  const { ownerId } = req.query;
 
   if (!ownerId) {
     return res.status(400).json({ error: 'Owner ID is required' });
   }
 
   try {
-    const books = await Book.findAll({
-      where: {
-        ownerId: ownerId, // Filter by owner ID
-      },
-    });
-
+    const books = await Book.findAll({ where: { ownerId } });
     res.json(books);
   } catch (error) {
-    console.error('Error fetching book data:', error);
     res.status(500).send('Internal Server Error');
+  }
+};
+const rentBook = async (bookId) => {
+  try {
+    const book = await Book.findByPk(bookId);
+
+    if (!book) {
+      throw new Error('Book not found');
+    }
+
+    if (book.quantity <= 0) {
+      throw new Error('No copies available');
+    }
+
+    // Update book quantities
+    book.quantity -= 1;
+    book.rentedQuantity += 1;
+    book.rented = book.quantity === 0; // Mark as rented if no quantity left
+
+    await book.save();
+
+    return book;
+  } catch (error) {
+    console.error('Error renting book:', error);
+    throw error;
+  }
+};
+const returnBook = async (bookId) => {
+  try {
+    const book = await Book.findByPk(bookId);
+
+    if (!book) {
+      throw new Error('Book not found');
+    }
+
+    if (book.rentedQuantity <= 0) {
+      throw new Error('No rented copies to return');
+    }
+
+    // Update book quantities
+    book.quantity += 1;
+    book.rentedQuantity -= 1;
+    book.rented = false; // Mark as available if there are copies left
+
+    await book.save();
+
+    return book;
+  } catch (error) {
+    console.error('Error returning book:', error);
+    throw error;
   }
 };
 
 
-
 module.exports = { 
+  returnBook,
   uploadBook, 
   updateBook, 
   deleteBook, 
   listBooks, 
   getRevenue, 
   getDashboardStats, 
-  getAvailableBooks ,getBooksByOwner
+  getAvailableBooks,
+  getBooksByOwner,
+  rentBook
 };

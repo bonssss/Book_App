@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Chart as ChartJS, Tooltip, Legend, ArcElement } from 'chart.js';
 import axios from 'axios';
 import { useAuth } from '../../services/AuthContext';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement);
+ChartJS.register(Tooltip, Legend, ArcElement);
 
 const API_URL = 'http://localhost:5000'; // Adjust if necessary
 
@@ -24,8 +24,6 @@ const CategoryPieChart = () => {
         const response = await axios.get(`${API_URL}/api/categories`, { params: { userId } });
         const categories = response.data;
 
-        // console.log('Fetched categories:', categories); // Log data for debugging
-
         setData({
           labels: categories.map(cat => cat.name),
           datasets: [{
@@ -44,16 +42,26 @@ const CategoryPieChart = () => {
   }, [user]);
 
   return (
-    <div style={{ width: '100%', height: '400px' }}>
-      <h2>Book Categories</h2>
+    <div sx={{ width: '250px', height: '2050px', margin: 'auto' }}>
+      <h2 sx={{ textAlign: 'center', mb: 2 }}>
+        Available Books <span sx={{ color: 'gray', fontWeight: 'normal' }}>Today</span>
+      </h2>
       <Doughnut 
         data={data}
         options={{
-          cutout: '60%', // Adjust this value to control the size of the center cut-out
+          cutout: '80%', // Increase this value to make the center cut-out larger
           responsive: true,
           plugins: {
             legend: {
-              position: 'top',
+              display: true, // Display the legend
+              position: 'bottom', // Align the legend at the bottom
+              labels: {
+                boxWidth: 15,
+                padding: 8,
+                font: {
+                  size: 12
+                }
+              }
             },
             tooltip: {
               callbacks: {
@@ -65,6 +73,19 @@ const CategoryPieChart = () => {
           }
         }}
       />
+      <div sx={{ mt: 2, textAlign: 'center' }}>
+        {data.labels.map((label, index) => (
+          <div key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+            <div sx={{
+              width: '15px',
+              height: '15px',
+              backgroundColor: data.datasets[0].backgroundColor[index],
+              mr: 1
+            }}></div>
+            <span sx={{ fontSize: '12px' }}>{label}: {data.datasets[0].data[index]}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

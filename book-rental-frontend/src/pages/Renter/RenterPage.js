@@ -5,17 +5,27 @@ import Navbar from '../../components/Renter/Navbar';
 import Footer from '../../components/Renter/Footer';
 import LandingPage from '../../components/Renter/LandingPage';
 import BookList from '../../components/Renter/BookList';
+import { useAuth } from '../../services/AuthContext';
 
 const RenterPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Fetch available books for rent from the backend
     const fetchBooks = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/books/available'); // Correct endpoint
+        if (!user || !localStorage.getItem('token')) {
+          throw new Error('User not authenticated');
+        }
+
+        const response = await axios.get('http://localhost:5000/api/books/available', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
         setBooks(response.data);
       } catch (error) {
         setError(error.message);
@@ -25,7 +35,7 @@ const RenterPage = () => {
     };
 
     fetchBooks();
-  }, []);
+  }, [user]);
 
   if (loading) return <Typography variant="h6" textAlign="center">Loading...</Typography>;
   if (error) return <Typography variant="h6" color="error" textAlign="center">Error: {error}</Typography>;
@@ -37,7 +47,7 @@ const RenterPage = () => {
       <Typography variant="h4" gutterBottom>
         Available Books for Rent
       </Typography>
-      <BookList books={books} /> {/* Pass books data as a prop */}
+      <BookList books={books} />
       <Footer />
     </Box>
   );

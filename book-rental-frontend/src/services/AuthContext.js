@@ -41,8 +41,13 @@ export const AuthProvider = ({ children }) => {
     navigate('/login'); // Redirect to login after logout
   };
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, getAuthHeaders }}>
       {children}
     </AuthContext.Provider>
   );

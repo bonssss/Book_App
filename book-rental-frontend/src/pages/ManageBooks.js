@@ -1,93 +1,260 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Table, TableBody, TableCell, TableHead, TableRow, TextField, IconButton, Snackbar } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Box, Button, Typography, TextField, IconButton, Snackbar, Paper, Grid,
+  Dialog, DialogTitle, DialogContent, DialogActions
+} from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material';
+import { MaterialReactTable } from 'material-react-table';
+import { useNavigate } from 'react-router-dom';
 import { fetchBooks, addBook, updateBook, deleteBook } from '../services/bookService';
 
 const ManageBooks = () => {
   const [books, setBooks] = useState([]);
-  const [bookData, setBookData] = useState({ title: '', author: '', category: '', price: '' });
+  const [bookData, setBookData] = useState({ title: '', author: '', category: '', price: '', quantity: '', status: '' });
+  const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [editingBookId, setEditingBookId] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchBooks().then(setBooks).catch(setError);
+    fetchBooks()
+      .then(setBooks)
+      .catch(err => setError(err.message));
   }, []);
 
   const handleChange = (e) => {
     setBookData({ ...bookData, [e.target.name]: e.target.value });
   };
 
-  const handleAddBook = () => {
-    addBook(bookData)
-      .then(newBook => {
-        setBooks([...books, newBook]);
-        setBookData({ title: '', author: '', category: '', price: '' });
-      })
-      .catch(setError);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
-  const handleUpdateBook = (id) => {
-    updateBook(id, bookData)
-      .then(updatedBook => {
-        setBooks(books.map(book => (book.id === id ? updatedBook : book)));
-      })
-      .catch(setError);
+  const handleAddOrUpdateBook = () => {
+    const { title, author, category, price, quantity, status } = bookData;
+
+    if (!title || !author || !category || !price || !quantity) {
+      setError('Please fill in all the required fields.');
+      return;
+    }
+
+    if (editingBookId) {
+      updateBook(editingBookId, bookData, file)
+        .then(updatedBook => {
+          setBooks(books.map(book => (book.id === editingBookId ? updatedBook : book)));
+          setBookData({ title: '', author: '', category: '', price: '', quantity: '', status: '' });
+          setFile(null);
+          setSuccess('Book updated successfully');
+          setDialogMessage('Book updated successfully!');
+          setDialogOpen(true);
+          setEditingBookId(null);
+        })
+        .catch(err => setError(err.message));
+    } else {
+      addBook(bookData, file)
+        .then(newBook => {
+          setBooks([...books, newBook]);
+          setBookData({ title: '', author: '', category: '', price: '', quantity: '', status: '' });
+          setFile(null);
+          setSuccess('Book added successfully');
+          setDialogMessage('Book added successfully!');
+          setDialogOpen(true);
+        })
+        .catch(err => setError(err.message));
+    }
+  };
+
+  const handleEditBook = (book) => {
+    setBookData(book);
+    setEditingBookId(book.id);
   };
 
   const handleDeleteBook = (id) => {
     deleteBook(id)
       .then(() => {
         setBooks(books.filter(book => book.id !== id));
+        setSuccess('Book deleted successfully');
       })
-      .catch(setError);
+      .catch(err => setError(err.message));
   };
 
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    navigate(-1); // Navigate back
+  };
+
+  const columns = [
+    { header: 'Title', accessorKey: 'title' },
+    { header: 'Author', accessorKey: 'author' },
+    { header: 'Category', accessorKey: 'category' },
+    { header: 'Price', accessorKey: 'price' },
+    { header: 'Quantity', accessorKey: 'quantity' },
+    { header: 'Status', accessorKey: 'status' },
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      Cell: ({ row }) => (
+        <>
+          <IconButton onClick={() => handleEditBook(row.original)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => handleDeleteBook(row.original.id)}>
+            <DeleteIcon />
+          </IconButton>
+        </>
+      )
+    }
+  ];
+
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>Manage Books</Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
-        <TextField label="Title" name="title" value={bookData.title} onChange={handleChange} />
-        <TextField label="Author" name="author" value={bookData.author} onChange={handleChange} />
-        <TextField label="Category" name="category" value={bookData.category} onChange={handleChange} />
-        <TextField label="Price" name="price" value={bookData.price} onChange={handleChange} />
-        <Button variant="contained" onClick={handleAddBook}>Add Book</Button>
-      </Box>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell>Author</TableCell>
-            <TableCell>Category</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {books.map((book) => (
-            <TableRow key={book.id}>
-              <TableCell>{book.title}</TableCell>
-              <TableCell>{book.author}</TableCell>
-              <TableCell>{book.category}</TableCell>
-              <TableCell>{book.price}</TableCell>
-              <TableCell>
-                <IconButton onClick={() => handleUpdateBook(book.id)}>
-                  <EditIcon />
-                </IconButton>
-                <IconButton onClick={() => handleDeleteBook(book.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <Box sx={{ padding: { xs: 2, md: 4 }, backgroundColor: '#f5f5f5' }}>
+      <Typography variant="h4" gutterBottom textAlign="center" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+        Manage Books
+      </Typography>
+      <Paper elevation={3} sx={{ padding: 2, marginBottom: 4, backgroundColor: '#fff', borderRadius: '8px' }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Title"
+              name="title"
+              value={bookData.title}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Author"
+              name="author"
+              value={bookData.author}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Category"
+              name="category"
+              value={bookData.category}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Price"
+              name="price"
+              value={bookData.price}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Quantity"
+              name="quantity"
+              value={bookData.quantity}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <input type="file" onChange={handleFileChange} style={{ marginTop: '16px' }} />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              onClick={handleAddOrUpdateBook}
+              fullWidth
+              sx={{ mt: 2, backgroundColor: '#1976d2', color: '#fff' }}
+            >
+              {editingBookId ? 'Update Book' : 'Add Book'}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+      <MaterialReactTable
+        columns={columns}
+        data={books}
+        muiTableProps={{
+          sx: {
+            '& .MuiTableCell-root': {
+              textAlign: 'center',
+            },
+            '& .MuiTableCell-head': {
+              backgroundColor: '#1976d2',
+              color: '#fff',
+              fontWeight: 'bold',
+            },
+            '& .MuiTableBody-root': {
+              '& .MuiTableRow-root:nth-of-type(odd)': {
+                backgroundColor: '#f5f5f5',
+              },
+            },
+          },
+        }}
+      />
       {error && (
         <Snackbar
           open={Boolean(error)}
           autoHideDuration={6000}
           onClose={() => setError(null)}
-          message={error.message}
+          message={error}
+          action={
+            <IconButton size="small" color="inherit" onClick={() => setError(null)}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
         />
       )}
+      {success && (
+        <Snackbar
+          open={Boolean(success)}
+          autoHideDuration={6000}
+          onClose={() => setSuccess(null)}
+          message={success}
+          action={
+            <IconButton size="small" color="inherit" onClick={() => setSuccess(null)}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+      )}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
+            Success
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ textAlign: 'center', padding: 2 }}>
+            <img
+              src="path/to/success-image.png" // Replace with the path to your success image
+              alt="Success"
+              style={{ width: '100px', height: '100px', marginBottom: '16px' }}
+            />
+            <Typography variant="h6">{dialogMessage}</Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button onClick={handleDialogClose} color="primary" variant="contained">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
