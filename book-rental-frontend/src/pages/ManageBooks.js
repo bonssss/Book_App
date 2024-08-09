@@ -7,6 +7,7 @@ import { Edit as EditIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui
 import { MaterialReactTable } from 'material-react-table';
 import { useNavigate } from 'react-router-dom';
 import { fetchBooks, addBook, updateBook, deleteBook } from '../services/bookService';
+import Emogy from '../assets/imogy.png'
 
 const ManageBooks = () => {
   const [books, setBooks] = useState([]);
@@ -242,7 +243,7 @@ const ManageBooks = () => {
         <DialogContent>
           <Box sx={{ textAlign: 'center', padding: 2 }}>
             <img
-              src="path/to/success-image.png" // Replace with the path to your success image
+              src={Emogy} // Replace with the path to your success image
               alt="Success"
               style={{ width: '100px', height: '100px', marginBottom: '16px' }}
             />

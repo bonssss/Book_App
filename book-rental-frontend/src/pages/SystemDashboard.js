@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Paper, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route } from 'react-router-dom';
 import AdminCategoryPieChart from '../components/admin/AdminCategoryPieChart';
 import AdminLiveBookStatus from '../components/admin/AdminLiveBookStatus';
-import EarningsSummary from '../components/admin/EarningsSummary';
 import Settings from '../pages/Settings';
 import ManageBooks from '../pages/ManageBooks';
-import AllBooks from '../components/admin/AllBooks'; // Import the AllBooks component
+import AllBooks from '../components/admin/AllBooks';
 import axios from 'axios';
 import AdminSidebar from '../components/admin/AdminSidebar';
+import OwnerStats from '../components/admin/OwnerStats';
 
-const API_URL = 'http://localhost:5000'; // Adjust if necessary
+const API_URL = 'http://localhost:5000';
 
 const SystemDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -46,7 +46,7 @@ const SystemDashboard = () => {
           transition: 'margin-left 0.3s',
           overflowY: 'auto',
           height: '100vh',
-          width: '100%',
+          width: '100%'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -55,7 +55,7 @@ const SystemDashboard = () => {
           </IconButton>
           <Typography variant="h4">System Dashboard</Typography>
         </Box>
-        
+
         <Routes>
           <Route path="/" element={
             <Grid container spacing={3}>
@@ -70,14 +70,13 @@ const SystemDashboard = () => {
                 </Paper>
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="h6" gutterBottom>Earnings Summary</Typography>
-                  {/* <EarningsSummary /> */}
                 </Paper>
               </Grid>
             </Grid>
           } />
           <Route path="settings" element={<Settings />} />
-          <Route path="manage-books" element={<ManageBooks />} />
-          <Route path="all-books" element={<AllBooks />} /> {/* Add this route */}
+          <Route path="ownerstatus" element={<OwnerStats />} />
+          <Route path="all-books" element={<AllBooks />} />
         </Routes>
       </Box>
     </Box>

@@ -12,24 +12,27 @@ import Cart from './components/Renter/Cart';
 import PaymentForm from './components/PaymentForm';
 import RenterDashboard from './pages/Renter/RenterDashboard';
 import AllBooks from './components/admin/AllBooks';
+import OwnerStats from './components/admin/OwnerStats';
 
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      <AuthProvider> 
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/" element={<Login />} />
           <Route path="/owner-dashboard/*" element={<ProtectedRoute element={OwnerDashboard} />} />
-          <Route path="/system-dashboard" element={<ProtectedRoute element={SystemDashboard} />} />
+          <Route path="/system-dashboard/*" element={<ProtectedRoute element={SystemDashboard} />} />
           <Route path="/renter" element={<ProtectedRoute element={RenterPage} />} />
           <Route path="/rental-form" element={<RentalForm />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<PaymentForm />} />
         <Route path="/renter-dashboard" element={<RenterDashboard />} />
-        <Route path="/all-books" element={<AllBooks />} />
+        {/* <Route path="/all-books" element={<AllBooks />} />
+        <Route path="/ownerstatus" element={<OwnerStats />} /> */}
+
 
 
         </Routes>

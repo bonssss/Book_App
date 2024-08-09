@@ -14,6 +14,7 @@ const AdminLiveBookStatus = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -61,30 +62,43 @@ const AdminLiveBookStatus = () => {
     {
       header: 'Roll No',
       accessorKey: 'rollNo',
-      Cell: ({ row }) => row.index + 1 // Generate roll number starting from 1
+      Cell: ({ row }) => row.index + 1, // Generate roll number starting from 1
+      size: 30, // Further minimized column width
     },
-    { header: 'Title', accessorKey: 'title' },
-    { accessorKey: 'owner.username', header: 'Owner' }, // Ensure this is correct
-
-    { header: 'Status', accessorKey: 'status' },
     {
-      header: 'Action',
-      accessorKey: 'id',
-      Cell: ({ cell }) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Tooltip title="Edit">
-            <IconButton color="primary" onClick={() => handleEdit(cell.getValue())}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton color="error" onClick={() => handleDelete(cell.getValue())}>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      )
-    }
+      header: 'Title',
+      accessorKey: 'title',
+      size: 100, // Further minimized column width
+    },
+    {
+      header: 'Owner',
+      accessorKey: 'owner.username',
+      size: 80, // Further minimized column width
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      size: 60, // Further minimized column width
+    },
+    // {
+    //   header: 'Action',
+    //   accessorKey: 'id',
+    //   Cell: ({ cell }) => (
+    //     <Box sx={{ display: 'flex', gap: 0.5 }}>
+    //       <Tooltip title="Edit">
+    //         <IconButton size="small" color="primary" onClick={() => handleEdit(cell.getValue())}>
+    //           <EditIcon fontSize="small" />
+    //         </IconButton>
+    //       </Tooltip>
+    //       <Tooltip title="Delete">
+    //         <IconButton size="small" color="error" onClick={() => handleDelete(cell.getValue())}>
+    //           <DeleteIcon fontSize="small" />
+    //         </IconButton>
+    //       </Tooltip>
+    //     </Box>
+    //   ),
+    //   size: 90, // Further minimized column width
+    // },
   ];
 
   // Add rollNo property to each book object
@@ -95,25 +109,34 @@ const AdminLiveBookStatus = () => {
 
   return (
     <>
-      <Box sx={{ p: 2, width: '100%' }}>
-        <Box
+      <Box sx={{ p: 2, width: '100%', overflowX: 'auto' }}>
+        <MaterialReactTable
+          columns={columns}
+          data={booksWithRollNo} // Use booksWithRollNo to include roll numbers
+          enableSorting={false}
+          enableFiltering={false}
           sx={{
-            maxWidth: '100%',
-            overflowX: 'auto', // Allow horizontal scrolling if needed
-          }}
-        >
-          <MaterialReactTable
-            columns={columns}
-            data={booksWithRollNo} // Use booksWithRollNo to include roll numbers
-            enableSorting={false}
-            enableFiltering={false}
-            sx={{
-              '& .MuiTable-root': {
-                minWidth: 800, // Adjust minWidth as needed
+            '& .MuiTable-root': {
+              minWidth: 500, // Further minimized width
+            },
+            '& .MuiTableCell-root': {
+              p: 0.3, // Further adjusted padding for compact spacing
+              fontSize: '0.75rem', // Smaller font size for better fit
+            },
+            '& .MuiTableHead-root': {
+              backgroundColor: '#f5f5f5', // Header background color
+            },
+            '& .MuiTableCell-head': {
+              fontWeight: 'bold', // Make header text bold
+              fontSize: '0.75rem', // Smaller font size for headers
+            },
+            '@media (max-width: 600px)': {
+              '& .MuiTableCell-root': {
+                fontSize: '0.6rem', // Further reduce font size for smaller screens
               },
-            }}
-          />
-        </Box>
+            },
+          }}
+        />
       </Box>
       <Snackbar
         open={openSnackbar}

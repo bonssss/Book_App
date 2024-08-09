@@ -8,7 +8,7 @@ const {
   getRevenue,
   getDashboardStats,
   getAvailableBooks,
-  getBooksByOwner,getAllBooksForAdmin
+  getBooksByOwner,getAllBooksForAdmin,approveBook
 } = require('../controllers/bookController');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -34,6 +34,7 @@ router.get('/dashboard-stats', authMiddleware, getDashboardStats);
 router.get('/available', authMiddleware, getAvailableBooks);
 router.get('/owner-books', authMiddleware, getBooksByOwner);
 router.get('/adminbooks', getAllBooksForAdmin);
+router.put('/books/:bookId/approve', approveBook);
 // Ensure this endpoint does not require a user ID
 
 module.exports = router;

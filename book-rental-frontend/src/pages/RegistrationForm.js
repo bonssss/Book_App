@@ -25,7 +25,7 @@ const RegistrationForm = () => {
       return;
     }
     try {
-      const response = await axios.post(`${API_URL}/api/register`, { username, email, password, confirmPassword, role, location, phoneNumber });
+      const response = await axios.post(`${API_URL}/api/auth/register`, { username, email, password, confirmPassword, role, location, phoneNumber });
       if (response.status === 201) {
         setSuccessMessage('Registration successful. Please wait for admin approval.');
         setTimeout(() => navigate('/login'), 3000);

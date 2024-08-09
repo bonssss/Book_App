@@ -27,7 +27,7 @@ const uploadBook = async (req, res) => {
 
   try {
     // Check if the book already exists
-    const existingBook = await Book.findOne({ where: { title, author } });
+    const existingBook = await Book.findOne({ where: { title, author, ownerId: req.user.id } });
     if (existingBook) {
       return res.status(400).json({ error: 'Book already registered' });
     }
@@ -269,6 +269,31 @@ const getAllBooksForAdmin = async (req, res) => {
   }
 };
 
+const approveBook = async (req, res) => {
+  const { bookId } = req.params;
+
+  try {
+    // Find the book by ID
+    const book = await Book.findByPk(bookId);
+    
+    if (!book) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    if (book.status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending books can be approved.' });
+    }
+
+    // Update the book's status to 'available'
+    book.status = 'available';
+    await book.save();
+
+    res.status(200).json({ message: 'Book has been approved and is now available.', book });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = { 
   returnBook,
   uploadBook, 
@@ -279,5 +304,6 @@ module.exports = {
   getDashboardStats, 
   getAvailableBooks,
   getBooksByOwner,
-  rentBook,getAllBooksForAdmin
+  rentBook,getAllBooksForAdmin,
+  approveBook
 };

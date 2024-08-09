@@ -32,10 +32,10 @@ const AdminSidebar = () => {
           <ListItem button component={Link} to="/system-dashboard">
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button component={Link} to="/system-dashboard/manage-books">
-            <ListItemText primary="Manage Books" />
+          <ListItem button component={Link} to="/system-dashboard/ownerstatus">
+            <ListItemText primary="Owners" />
           </ListItem>
-          <ListItem button component={Link} to="/all-books">
+          <ListItem button component={Link} to="/system-dashboard/all-books">
             <ListItemText primary="All Books" />
           </ListItem>
           <ListItem button component={Link} to="/system-dashboard/settings">

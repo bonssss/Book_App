@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Rental extends Model {
     /**
@@ -10,17 +9,54 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Define associations here
+      Rental.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'renter',
+      });
+      Rental.belongsTo(models.Book, {
+        foreignKey: 'bookId',
+        as: 'book',
+      });
     }
   }
+
   Rental.init({
-    bookId: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER,
-    rentDate: DataTypes.DATE,
-    returnDate: DataTypes.DATE
+    bookId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Books',
+        key: 'id',
+      },
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    amount: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    rentDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    returnDate: {
+      type: DataTypes.DATE,
+    },
   }, {
     sequelize,
     modelName: 'Rental',
   });
+
   return Rental;
 };
