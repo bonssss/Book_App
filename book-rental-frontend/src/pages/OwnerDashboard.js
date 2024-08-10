@@ -1,38 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, TextField, IconButton } from '@mui/material';
+import { Box, Typography, Grid, Paper, IconButton, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import CategoryPieChart from '../components/owner/CategoryPieChart';
 import LiveBookStatus from '../components/owner/LiveBookStatus';
 import EarningsSummary from '../components/owner/EarningsSummary';
 import Settings from '../pages/Settings';
 import ManageBooks from '../pages/ManageBooks';
+import { useAuth } from '../services/AuthContext'; // Import useAuth hook
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000'; // Adjust if necessary
+const API_URL = 'http://localhost:5000';
 
 const OwnerDashboard = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [currentMonthIncome, setCurrentMonthIncome] = useState(0);
+  const [lastMonthIncome, setLastMonthIncome] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { user, getAuthHeaders } = useAuth();
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
   const fetchMonthlyIncome = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/income/monthly`);
-      setMonthlyIncome(response.data.income); // Adjust according to your API response
+      const response = await axios.get(`${API_URL}/api/owner-income`, {
+        headers: getAuthHeaders(),
+      });
+      
+      const { currentMonthIncome, lastMonthIncome } = response.data;
+      setCurrentMonthIncome(currentMonthIncome || 0);
+      setLastMonthIncome(lastMonthIncome || 0);
+
     } catch (error) {
+      setError('Failed to fetch monthly income');
       console.error('Error fetching monthly income:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchMonthlyIncome();
   }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -55,8 +81,6 @@ const OwnerDashboard = () => {
           </IconButton>
           <Typography variant="h4">Owner Dashboard</Typography>
         </Box>
-        
-       
 
         <Routes>
           <Route path="/" element={
@@ -64,7 +88,10 @@ const OwnerDashboard = () => {
               <Grid item xs={12} md={4}>
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="h6" gutterBottom>
-                    Monthly Income: ${monthlyIncome.toFixed(2)}
+                    Current Month Income: ${currentMonthIncome.toFixed(2)}
+                  </Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Last Month Income: ${lastMonthIncome.toFixed(2)}
                   </Typography>
                 </Paper>
                 <Paper sx={{ p: 2 }}>
@@ -76,8 +103,10 @@ const OwnerDashboard = () => {
                   <LiveBookStatus />
                 </Paper>
                 <Paper sx={{ p: 2 }}>
-                  <Typography variant="h6" gutterBottom>Earnings Summary</Typography>
-                  {/* <EarningsSummary /> */}
+                  <EarningsSummary
+                    currentMonthIncome={currentMonthIncome}
+                    lastMonthIncome={lastMonthIncome}
+                  />
                 </Paper>
               </Grid>
             </Grid>

@@ -14,6 +14,9 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
       const userData = response.data;
       setUser(userData.user); // Set user data in context
+
+      // Store userId and token in localStorage
+      localStorage.setItem('userId', userData.user.id.toString()); // Ensure userId is stored as a string
       localStorage.setItem('token', userData.token);
 
       // Redirect based on user role
@@ -37,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('userId');
     localStorage.removeItem('token');
     navigate('/login'); // Redirect to login after logout
   };

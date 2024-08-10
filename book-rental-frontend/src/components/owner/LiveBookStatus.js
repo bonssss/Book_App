@@ -62,29 +62,47 @@ const LiveBookStatus = () => {
     {
       header: 'Roll No',
       accessorKey: 'rollNo',
-      Cell: ({ row }) => row.index + 1 // Generate roll number starting from 1
+      Cell: ({ row }) => row.index + 1, // Generate roll number starting from 1
+      size: 30 // Minimize width for Roll No column
     },
-    { header: 'Name', accessorKey: 'author' },
-    { header: 'Title', accessorKey: 'title' },
-    { header: 'Status', accessorKey: 'status' },
-    { header: 'Price', accessorKey: 'price' },
+    { 
+      header: 'Name', 
+      accessorKey: 'author', 
+      size: 80 // Minimize width for Name column
+    },
+    { 
+      header: 'Title', 
+      accessorKey: 'title', 
+      size: 120 // Minimize width for Title column
+    },
+    { 
+      header: 'Status', 
+      accessorKey: 'status', 
+      size: 60 // Minimize width for Status column
+    },
+    { 
+      header: 'Price', 
+      accessorKey: 'price', 
+      size: 60 // Minimize width for Price column
+    },
     {
       header: 'Action',
       accessorKey: 'id',
       Cell: ({ cell }) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title="Edit">
             <IconButton color="primary" onClick={() => handleEdit(cell.getValue())}>
-              <EditIcon />
+              <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
             <IconButton color="error" onClick={() => handleDelete(cell.getValue())}>
-              <DeleteIcon />
+              <DeleteIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Box>
-      )
+      ),
+      size: 80 // Minimize width for Action column
     }
   ];
 
@@ -96,11 +114,17 @@ const LiveBookStatus = () => {
 
   return (
     <>
-      <Box sx={{ p: 2, width: '100%' }}>
+      <Box sx={{ p: 1, width: '100%' }}>
         <Box
           sx={{
-            maxWidth: '100%',
             overflowX: 'auto', // Allow horizontal scrolling if needed
+            '& .MuiTable-root': {
+              minWidth: 400, // Adjust minWidth to be more compact
+            },
+            '& .MuiTableCell-root': {
+              padding: '2px', // Reduce cell padding
+              fontSize: '0.7rem' // Decrease font size for compactness
+            },
           }}
         >
           <MaterialReactTable
@@ -110,8 +134,13 @@ const LiveBookStatus = () => {
             enableFiltering={false}
             sx={{
               '& .MuiTable-root': {
-                minWidth: 800, // Adjust minWidth as needed
+                minWidth: 400, // Adjust minWidth to be more compact
+                tableLayout: 'fixed', // Ensure columns are fixed-width
               },
+              '& .MuiTableCell-root': {
+                overflow: 'hidden', // Hide overflow text
+                textOverflow: 'ellipsis', // Show ellipsis for overflow text
+              }
             }}
           />
         </Box>

@@ -13,6 +13,7 @@ import PaymentForm from './components/PaymentForm';
 import RenterDashboard from './pages/Renter/RenterDashboard';
 import AllBooks from './components/admin/AllBooks';
 import OwnerStats from './components/admin/OwnerStats';
+import RentBooks from './components/Renter/RentBooks';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<PaymentForm />} />
         <Route path="/renter-dashboard" element={<RenterDashboard />} />
+        <Route path="/rent-books" element={<RentBooks />} />
         {/* <Route path="/all-books" element={<AllBooks />} />
         <Route path="/ownerstatus" element={<OwnerStats />} /> */}
 

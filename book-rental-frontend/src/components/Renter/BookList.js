@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Card, CardMedia, CardContent, Grid, Collapse, Divider, Button, Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import Image from '../../assets/default.jpg';
 
 const BookList = ({ books }) => {
@@ -23,15 +23,76 @@ const BookList = ({ books }) => {
     });
   };
 
-  const handleRentSingleClick = (book) => {
-    navigate('/rental-form', { state: { books: [book], single: true } });
-  };
+  const handleRentSingleClick = async (book) => {
+    try {
+        const userId = parseInt(localStorage.getItem('userId'), 10); 
+        console.log(localStorage.getItem('userId'));
+// Retrieve and parse userId as an integer
+        console.log('Retrieved userId:', userId);
+        if (isNaN(userId)) {
+            alert('Invalid user ID');
+            return;
+        }
 
-  const handleRentMultipleClick = () => {
+        const requestData = {
+            userId: userId, // Ensure userId is an integer
+            books: [
+                {
+                    bookId: book.id,
+                    quantity: 1,
+                },
+            ],
+        };
+
+        console.log('Request Data:', requestData);
+
+        const response = await axios.post('http://localhost:5000/api/rent-books', requestData, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`, // Ensure correct token is used
+                'Content-Type': 'application/json' // Ensure the content type is set to JSON
+            },
+        });
+
+        console.log('Response:', response.data); // Log the successful response
+        alert(response.data.message); // Show success message
+
+    } catch (error) {
+        console.error('Error renting book:', error.response ? error.response.data : error.message);
+        alert('Failed to rent book. Please try again.');
+    }
+};
+
+
+  const handleRentMultipleClick = async () => {
     if (selectedBooks.length === 0) {
       alert('Please select books to add to cart.');
     } else {
-      navigate('/rental-form', { state: { books: selectedBooks, single: false } });
+      try {
+        const userId = localStorage.getItem('userId'); // Retrieve userId from local storage or other source
+
+        const requestData = {
+          userId: parseInt(userId), // Ensure userId is an integer
+          books: selectedBooks.map(book => ({
+            bookId: book.id,
+            quantity: 1,
+          })),
+        };
+
+        console.log('Request Data:', requestData);
+
+        const response = await axios.post('http://localhost:5000/api/rent-books', requestData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Adjust based on your token storage
+          },
+        });
+
+        console.log('Response:', response.data); // Log the successful response
+        alert(response.data.message); // Show success message
+
+      } catch (error) {
+        console.error('Error renting books:', error.response ? error.response.data : error.message);
+        alert('Failed to rent books. Please try again.');
+      }
     }
   };
 
@@ -41,11 +102,6 @@ const BookList = ({ books }) => {
     <Box sx={{ padding: 2 }}>
       <Grid container spacing={4} justifyContent="center">
         {books.map((book) => {
-          // Debugging information
-          console.log('Book ID:', book.id);
-          console.log('Book Title:', book.title);
-          console.log('Book Image URL:', book.imageUrl);
-
           return (
             <Grid item xs={12} sm={6} md={4} lg={3} key={book.id} sx={{ display: 'flex', justifyContent: 'center' }}>
               <Card
@@ -67,7 +123,7 @@ const BookList = ({ books }) => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={`http://localhost:5000${book.imageUrl}`} // Use default image if book.imageUrl is not available
+                  image={`http://localhost:5000${book.imageUrl}`}
                   alt={book.title}
                   sx={{ 
                     objectFit: 'cover', 

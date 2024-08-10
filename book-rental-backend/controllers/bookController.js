@@ -1,9 +1,10 @@
-const { Book, User } = require('../models');
+const { Book, User,Rental } = require('../models');
 const { getAbility } = require('./authController');
 const { Op } = require('sequelize');
 const multer = require('multer');
 const path = require('path');
 const {  sequelize } = require('../models'); 
+const moment  = require ('moment')
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -294,7 +295,123 @@ const approveBook = async (req, res) => {
   }
 };
 
+const getOwnerIncome = async (req, res) => {
+  const userId = req.user.id; // Assuming user ID is available in req.user from authMiddleware
+
+  try {
+    // Find all books owned by the user
+    const books = await Book.findAll({
+      where: { ownerId: userId },
+      attributes: ['id'],
+    });
+
+    const bookIds = books.map(book => book.id);
+
+    // Get the start and end dates for the current and previous months
+    const currentMonthStart = moment().startOf('month').toDate();
+    const currentMonthEnd = moment().endOf('month').toDate();
+    const lastMonthStart = moment().subtract(1, 'month').startOf('month').toDate();
+    const lastMonthEnd = moment().subtract(1, 'month').endOf('month').toDate();
+
+    // Calculate total income for the current month
+    const currentMonthIncome = await Rental.sum('amount', {
+      where: {
+        bookId: bookIds,
+        createdAt: {
+          [Op.between]: [currentMonthStart, currentMonthEnd],
+        },
+      },
+    });
+
+    // Calculate total income for the previous month
+    const lastMonthIncome = await Rental.sum('amount', {
+      where: {
+        bookId: bookIds,
+        createdAt: {
+          [Op.between]: [lastMonthStart, lastMonthEnd],
+        },
+      },
+    });
+
+    res.json({
+      currentMonthIncome: currentMonthIncome || 0,
+      lastMonthIncome: lastMonthIncome || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching owner income:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+const getEarningsSummary = async (req, res) => {
+  const userId = req.user.id; // Assuming user ID is available in req.user from authMiddleware
+
+  try {
+    // Get start and end dates for the last 6 months
+    const now = moment();
+    const endDate = now.clone().startOf('month');
+    const startDate = endDate.clone().subtract(6, 'months');
+
+    // Get start and end dates for the same period last year
+    const lastYearEndDate = endDate.clone().subtract(1, 'year');
+    const lastYearStartDate = lastYearEndDate.clone().subtract(6, 'months');
+
+    // Prepare an array to hold results
+    const currentYearSummary = [];
+    const lastYearSummary = [];
+
+    // Function to get monthly income
+    const getMonthlyIncome = async (start, end) => {
+      return Rental.findAll({
+        attributes: [
+          [sequelize.fn('date_trunc', 'month', sequelize.col('createdAt')), 'month'],
+          [sequelize.fn('SUM', sequelize.col('amount')), 'totalIncome']
+        ],
+        where: {
+          bookId: {
+            [Op.in]: sequelize.literal(`(SELECT id FROM "Books" WHERE "ownerId" = ${userId})`)
+          },
+          createdAt: {
+            [Op.between]: [start.toDate(), end.toDate()],
+          },
+        },
+        group: [sequelize.fn('date_trunc', 'month', sequelize.col('createdAt'))],
+        order: [[sequelize.fn('date_trunc', 'month', sequelize.col('createdAt')), 'ASC']],
+      });
+    };
+
+    // Get current year earnings
+    for (let i = 0; i < 6; i++) {
+      const monthStart = startDate.clone().add(i, 'months');
+      const monthEnd = monthStart.clone().endOf('month');
+      const result = await getMonthlyIncome(monthStart, monthEnd);
+      currentYearSummary.push({
+        month: monthStart.format('YYYY-MM'),
+        earnings: result[0]?.dataValues.totalIncome || 0
+      });
+    }
+
+    // Get last year earnings
+    for (let i = 0; i < 6; i++) {
+      const monthStart = lastYearStartDate.clone().add(i, 'months');
+      const monthEnd = monthStart.clone().endOf('month');
+      const result = await getMonthlyIncome(monthStart, monthEnd);
+      lastYearSummary.push({
+        month: monthStart.format('YYYY-MM'),
+        earnings: result[0]?.dataValues.totalIncome || 0
+      });
+    }
+
+    res.json({
+      currentYear: currentYearSummary,
+      lastYear: lastYearSummary,
+    });
+  } catch (error) {
+    console.error('Error fetching earnings summary:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 module.exports = { 
+  getOwnerIncome,
   returnBook,
   uploadBook, 
   updateBook, 
@@ -305,5 +422,5 @@ module.exports = {
   getAvailableBooks,
   getBooksByOwner,
   rentBook,getAllBooksForAdmin,
-  approveBook
+  approveBook,getEarningsSummary
 };

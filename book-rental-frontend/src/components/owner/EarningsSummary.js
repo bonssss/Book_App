@@ -1,43 +1,76 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale } from 'chart.js';
-import axios from 'axios';
+import { Chart as ChartJS, LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Paper, Typography } from '@mui/material';
 
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale);
+// Register the necessary components
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
-const API_URL = 'http://localhost:5000'; // Update if necessary
+const EarningsSummary = ({ currentMonthEarnings, lastYearEarnings }) => {
+  const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
-const EarningsSummary = () => {
-  const [data, setData] = useState({ labels: [], datasets: [] });
+  const chartData = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Current 6 Months',
+        data: currentMonthEarnings,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+      },
+      {
+        label: 'Last Year 6 Months',
+        data: lastYearEarnings,
+        borderColor: 'rgba(153, 102, 255, 1)',
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        fill: true,
+      },
+    ],
+  };
 
-  useEffect(() => {
-    const fetchEarnings = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/earnings`);
-        const earnings = response.data;
-
-        setData({
-          labels: earnings.map(e => e.date),
-          datasets: [{
-            label: 'Earnings',
-            data: earnings.map(e => e.amount),
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          }],
-        });
-      } catch (error) {
-        console.error('Error fetching earnings data:', error);
-      }
-    };
-
-    fetchEarnings();
-  }, []);
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Earnings Overview',
+      },
+      legend: {
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem) => {
+            return `${tooltipItem.dataset.label}: $${tooltipItem.raw.toFixed(2)}`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Month',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Income ($)',
+        },
+        ticks: {
+          callback: (value) => `$${value}`,
+        },
+      },
+    },
+  };
 
   return (
-    <div>
-      <h2>Earnings Summary</h2>
-      <Line data={data} />
-    </div>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h6">Earnings Summary</Typography>
+      <Line data={chartData} options={chartOptions} />
+    </Paper>
   );
 };
 

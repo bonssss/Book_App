@@ -10,6 +10,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const categories = require('./routes/categories');
 const earningsRoutes = require('./routes/earnings');
 const incomeRoutes = require('./routes/incomeRoutes');
+const rentalRoutes = require('./routes/rent')
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +35,7 @@ app.use('/api', categories);
 app.use('/api/earnings', earningsRoutes);
 app.use('/api/income', incomeRoutes);
 app.use('/api', bookRoutes);
+app.use('/api/', rentalRoutes);
 
 
 // Start server and sync database
