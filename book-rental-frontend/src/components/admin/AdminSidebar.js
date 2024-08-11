@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Box, List, ListItem, ListItemText, Divider, Typography } from '@mui/material';
 import { useAuth } from '../../services/AuthContext';
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -18,16 +18,18 @@ const AdminSidebar = () => {
       sx={{
         width: 250,
         height: '100vh',
-        position: 'fixed',
+        position: 'relative',
         backgroundColor: '#1e1e1e',
         color: 'white',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        padding: 2,
+        overflowX: 'hidden', // Hide horizontal scroll bar
       }}
     >
       <Box>
-        <Typography variant="h6" sx={{ padding: 2 }}>Book Rent</Typography>
+        <Typography variant="h6" sx={{ paddingBottom: 2 }}>Book Rent</Typography>
         <List>
           <ListItem button component={Link} to="/system-dashboard">
             <ListItemText primary="Dashboard" />

@@ -1,65 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, IconButton } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Grid, Paper, IconButton, Drawer, useMediaQuery, useTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route } from 'react-router-dom';
 import AdminCategoryPieChart from '../components/admin/AdminCategoryPieChart';
 import AdminLiveBookStatus from '../components/admin/AdminLiveBookStatus';
 import Settings from '../pages/Settings';
-import ManageBooks from '../pages/ManageBooks';
 import AllBooks from '../components/admin/AllBooks';
-import axios from 'axios';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import OwnerStats from '../components/admin/OwnerStats';
-
-const API_URL = 'http://localhost:5000';
+import MonthlyIncome from '../components/admin/MonthlyIncome';
+import EarningsSummary from '../components/admin/EarningsSummary';
 
 const SystemDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const fetchMonthlyIncome = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/income/monthly`);
-      setMonthlyIncome(response.data.income); // Adjust according to your API response
-    } catch (error) {
-      console.error('Error fetching monthly income:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchMonthlyIncome();
-  }, []);
-
   return (
     <Box sx={{ display: 'flex' }}>
-      {sidebarOpen && <AdminSidebar />}
+      {/* Sidebar */}
+      <Drawer
+      overflow='hidden'
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        sx={{
+          display: { xs: 'block', md: 'block' },
+          '& .MuiDrawer-paper': {
+            width: 250,
+            boxSizing: 'border-box',
+            backgroundColor: '#1e1e1e',
+            color: 'white',
+            top: 0,
+            bottom: 0,
+            position: isMobile ? 'fixed' : 'relative',
+          },
+        }}
+        ModalProps={{
+          keepMounted: true,
+        }}
+      >
+        <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      </Drawer>
+
+      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: sidebarOpen ? '250px' : '0',
+          ml: sidebarOpen && !isMobile ? '250px' : '0',
           transition: 'margin-left 0.3s',
           overflowY: 'auto',
           height: '100vh',
-          width: '100%'
+          width: '100%',
         }}
       >
+        {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <IconButton onClick={handleToggleSidebar} sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
+          {/* Hamburger icon is only visible on mobile screens */}
+          {isMobile && (
+            <IconButton onClick={handleToggleSidebar} sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h4">System Dashboard</Typography>
         </Box>
 
+        {/* Routes */}
         <Routes>
           <Route path="/" element={
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
+                <Paper sx={{ p: 2, mb: 3 }}>
+                  <MonthlyIncome />
+                </Paper>
                 <Paper sx={{ p: 2 }}>
                   <AdminCategoryPieChart />
                 </Paper>
@@ -70,6 +89,7 @@ const SystemDashboard = () => {
                 </Paper>
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="h6" gutterBottom>Earnings Summary</Typography>
+                  <EarningsSummary />
                 </Paper>
               </Grid>
             </Grid>

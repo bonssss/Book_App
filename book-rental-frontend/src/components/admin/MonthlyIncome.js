@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Typography, Paper } from '@mui/material';
 import { useAuth } from '../../services/AuthContext';
 
 const API_URL = 'http://localhost:5000'; // Adjust if necessary
 
 const MonthlyIncome = () => {
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [currentMonthIncome, setCurrentMonthIncome] = useState(0);
+  const [lastMonthIncome, setLastMonthIncome] = useState(0);
   const { getAuthHeaders } = useAuth(); // Get headers function from AuthContext
 
   const fetchMonthlyIncome = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/income/monthly`, {
+      const response = await axios.get(`http://localhost:5000/api/admin/income-summary`, {
         headers: getAuthHeaders(), // Use the authentication headers
       });
-      setMonthlyIncome(response.data.income); // Adjust according to your API response
+      setCurrentMonthIncome(response.data.currentMonthIncome || 0);
+      setLastMonthIncome(response.data.lastMonthIncome || 0);
     } catch (error) {
       console.error('Error fetching monthly income:', error);
     }
@@ -24,10 +27,15 @@ const MonthlyIncome = () => {
   }, []);
 
   return (
-    <div sx={{ width: '300px', margin: 'auto', textAlign: 'center' }}>
-      <h2>Monthly Income</h2>
-      <p sx={{ fontSize: '24px', fontWeight: 'bold' }}>${monthlyIncome.toFixed(2)}</p>
-    </div>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom>Monthly Income</Typography>
+      <Typography variant="body1">
+        <strong>Current Month:</strong> ${currentMonthIncome.toFixed(2)}
+      </Typography>
+      <Typography variant="body1">
+        <strong>Last Month:</strong> ${lastMonthIncome.toFixed(2)}
+      </Typography>
+    </Paper>
   );
 };
 

@@ -37,26 +37,41 @@ const MonthlyIncome = () => {
   }, []);
 
   return (
-    <Box sx={{ width: '300px', margin: 'auto', textAlign: 'center', padding: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{
+      width: '100%',
+      maxWidth: 400,
+      margin: 'auto',
+      textAlign: 'center',
+      padding: 3,
+      borderRadius: 2,
+      boxShadow: 3,
+      bgcolor: 'background.paper',
+      border: '1px solid',
+      borderColor: 'divider',
+      background: 'linear-gradient(145deg, #6e8efb, #a777e3)', // Gradient background
+      overflow: 'hidden',
+    }}>
+      <Typography variant="h5" sx={{ mb: 2, color: 'white', fontWeight: 'bold' }}>
         Monthly Income
       </Typography>
       {loading ? (
-        <CircularProgress />
+        <CircularProgress sx={{ color: 'white' }} />
       ) : error ? (
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       ) : (
         <>
-          <Typography variant="h6">
-            Current Month: 
+          <Typography variant="body1" sx={{ color: 'white' }}>
+            Current Month:
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
             ${Number(currentMonthIncome).toFixed(2)}
           </Typography>
-          <Typography variant="h6" sx={{ marginTop: 2 }}>
-            Last Month: 
+          <Typography variant="body1" sx={{ mt: 2, color: 'white' }}>
+            Last Month:
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'white' }}>
             ${Number(lastMonthIncome).toFixed(2)}
           </Typography>
         </>

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, IconButton, CircularProgress } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Typography, Grid, Paper, IconButton, Drawer, useMediaQuery, useTheme, CircularProgress } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 import CategoryPieChart from '../components/owner/CategoryPieChart';
 import LiveBookStatus from '../components/owner/LiveBookStatus';
 import EarningsSummary from '../components/owner/EarningsSummary';
@@ -10,19 +9,29 @@ import Settings from '../pages/Settings';
 import ManageBooks from '../pages/ManageBooks';
 import { useAuth } from '../services/AuthContext'; // Import useAuth hook
 import axios from 'axios';
+import Sidebar from '../components/Sidebar';
 
 const API_URL = 'http://localhost:5000';
 
 const OwnerDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentMonthIncome, setCurrentMonthIncome] = useState(0);
   const [lastMonthIncome, setLastMonthIncome] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { user, getAuthHeaders } = useAuth();
+  const sidebarRef = useRef(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleClickOutside = (event) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target) && sidebarOpen) {
+      setSidebarOpen(false);
+    }
   };
 
   const fetchMonthlyIncome = async () => {
@@ -46,7 +55,12 @@ const OwnerDashboard = () => {
 
   useEffect(() => {
     fetchMonthlyIncome();
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [sidebarOpen]);
 
   if (loading) {
     return (
@@ -61,32 +75,63 @@ const OwnerDashboard = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      {sidebarOpen && <Sidebar />}
+    <Box sx={{ display: 'flex', height: '100vh' }}>
+      {/* Sidebar */}
+      <Drawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={isMobile ? sidebarOpen : true} // Always open on large screens
+        onClose={() => setSidebarOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 250,
+            boxSizing: 'border-box',
+            backgroundColor: '#1e1e1e',
+            color: 'white',
+            top: 0,
+            bottom: 0,
+            position: 'fixed', // Fixed position
+            overflow: 'hidden', // Hide scrollbar
+          },
+        }}
+        ModalProps={{
+          keepMounted: true,
+        }}
+      >
+        <Box ref={sidebarRef} sx={{ height: '100%' }}>
+          <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        </Box>
+      </Drawer>
+
+      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: sidebarOpen ? '250px' : '0',
+          ml: { xs: 0, md: '250px' }, // Adjust margin for sidebar
           transition: 'margin-left 0.3s',
           overflowY: 'auto',
           height: '100vh',
           width: '100%',
         }}
       >
+        {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <IconButton onClick={handleToggleSidebar} sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
+          {/* Hamburger icon is only visible on mobile screens */}
+          {isMobile && (
+            <IconButton onClick={handleToggleSidebar} sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h4">Owner Dashboard</Typography>
         </Box>
 
+        {/* Routes */}
         <Routes>
           <Route path="/" element={
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2 }}>
+                <Paper sx={{ p: 2, mb: 3 }}>
                   <Typography variant="h6" gutterBottom>
                     Current Month Income: ${currentMonthIncome.toFixed(2)}
                   </Typography>

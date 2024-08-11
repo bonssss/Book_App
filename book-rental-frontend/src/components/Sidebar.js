@@ -8,7 +8,6 @@ const Sidebar = () => {
   const { user } = useAuth();
 
   const handleLogout = () => {
-    // Clear token and user data, then navigate to login
     localStorage.removeItem('token');
     navigate('/login');
   };
@@ -18,12 +17,15 @@ const Sidebar = () => {
       sx={{
         width: 250,
         height: '100vh',
-        position: 'fixed',
         backgroundColor: '#1e1e1e',
         color: 'white',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        overflowY: 'auto',
+        '&::-webkit-scrollbar': {
+          display: 'none', // Hide horizontal scrollbar
+        }
       }}
     >
       <Box>

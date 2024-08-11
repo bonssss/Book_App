@@ -184,16 +184,20 @@ const ManageBooks = () => {
       </Paper>
       <MaterialReactTable
         columns={columns}
+        width= '100%'
         data={books}
         muiTableProps={{
           sx: {
             '& .MuiTableCell-root': {
               textAlign: 'center',
+              minWidth: '80px', // Minimized column width
+                padding: '8px',
             },
             '& .MuiTableCell-head': {
               backgroundColor: '#1976d2',
               color: '#fff',
               fontWeight: 'bold',
+              
             },
             '& .MuiTableBody-root': {
               '& .MuiTableRow-root:nth-of-type(odd)': {
@@ -245,7 +249,7 @@ const ManageBooks = () => {
             <img
               src={Emogy} // Replace with the path to your success image
               alt="Success"
-              style={{ width: '100px', height: '100px', marginBottom: '16px' }}
+              style={{ width: '70px', height: '70px', marginBottom: '16px' }}
             />
             <Typography variant="h6">{dialogMessage}</Typography>
           </Box>
