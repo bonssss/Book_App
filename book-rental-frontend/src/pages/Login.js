@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../services/AuthContext';
-import { TextField, Button, Box, Typography, Link } from '@mui/material';
+import { TextField, Button, Box, Typography, Link, Grid } from '@mui/material';
+import logo from '../assets/logo.png'; // Import the logo image
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,20 +23,36 @@ const Login = () => {
   };
 
   return (
-    <Box
-      display="flex"
-      height="100vh"
-      overflow="hidden"
-    >
-      <Box
+    <Grid container height="100vh">
+      {/* Left Side with Logo */}
+      <Grid
+        item
+        xs={12}
+        md={6}
         sx={{
-          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           backgroundColor: '#1e1e1e', // Blue-black color
+          flexDirection: { xs: 'column', md: 'row' }, // Stack vertically on small screens
+          textAlign: 'center',
         }}
-      />
-      <Box
+      >
+        {/* Logo Display */}
+        <Box sx={{ width: { xs: '100px', md: 'auto' }, mb: { xs: 2, md: 0 } }}>
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ width: '100%', maxWidth: '100px', height: 'auto' }}
+          />
+        </Box>
+      </Grid>
+      {/* Right Side with Registration Form */}
+      <Grid
+        item
+        xs={12}
+        md={6}
         sx={{
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -84,8 +101,8 @@ const Login = () => {
             </Typography>
           </Box>
         </Box>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 };
 
